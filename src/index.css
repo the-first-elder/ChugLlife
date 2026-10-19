@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --p: #836ef9;
+  --ps: #a99bfc;
+  --ph: #9d8dfc;
+  --p-glow: rgba(131, 110, 249, 0.45);
+  --p-subtle: rgba(131, 110, 249, 0.12);
+  --bg: #0e0b1a;
+  --bg2: #141026;
+  --bg3: #181330;
+  --tx: #f4f1fe;
+  --mu: rgba(244, 241, 254, 0.65);
+  --ln: rgba(244, 241, 254, 0.12);
+  --ln-bright: rgba(169, 155, 252, 0.28);
+  --ok: #5ce68a;
+  --ok-glow: rgba(92, 230, 138, 0.35);
+  --card: #161228;
+  --gold: #f59e0b;
+  --gold-glow: rgba(245, 158, 11, 0.4);
+}
+
+/* Chuglife base theme */
+body {
+  background-color: #0e0b1a;
+  color: #f4f1fe;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom smooth dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0e0b1a;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e183a;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #836ef9;
+}
+
+/* RainbowKit button customizations */
+.connect-button button {
+  border-radius: 9999px !important;
+  font-family: inherit !important;
+  font-weight: 700 !important;
+  transition: all 0.2s ease !important;
+}
+.connect-button button:hover {
+  transform: translateY(-1px);
+}
+
+@keyframes horizontal-shaking {
+  0% {
+    transform: translateX(0)
+  }
+
+  25% {
+    transform: translateX(5px)
+  }
+
+  50% {
+    transform: translateX(-5px)
+  }
+
+  75% {
+    transform: translateX(5px)
+  }
+
+  100% {
+    transform: translateX(0)
+  }
+}
+
+.horizontal-shake {
+  animation: horizontal-shaking 0.25s;
+  animation-iteration-count: 1;
+}
+
+/* Chog marquee feel for the landing band */
+.chog-marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.chog-marquee>span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: chog-scroll 18s linear infinite;
+}
+
+@keyframes chog-scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}

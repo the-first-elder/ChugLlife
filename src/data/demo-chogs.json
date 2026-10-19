@@ -1,0 +1,1340 @@
+{
+  "generatedAt": "2026-10-19T09:07:58.926Z",
+  "source": "Chog Genesis (Monad mainnet, real tokenIds/owners/metadata)",
+  "demoChogOwners": {
+    "474": "0x0ebb6072941a3cc487b84f03c8fa1bbee4be55ac",
+    "517": "0x945e1b1f12609224a244b9ce94560817f1912f8a",
+    "560": "0xe32de6bc2b37361067747154ec9036d9cfac6d2a",
+    "603": "0xb02edfbdda456ebd802f333020f8f5f15a842d48",
+    "646": "0xf31c629de382736af7842636179f746479da2264",
+    "689": "0x08a30a4b52ac4c427500951c0d2b1ad795df6f0a",
+    "732": "0x76577d204a5bd63b6d006222429c4d5124f4619c",
+    "775": "0xfcf991beb05103bdf381abf11d66a0ec12903b2d",
+    "818": "0xcbd0da74ca2d1f61333f050da01e4fde5f98068b",
+    "861": "0xe0abd864b96a6c72d80717a750245a9f60289c93",
+    "904": "0x0da745f2bd7655e4c70d6b02695ca772c8d2f69e",
+    "947": "0x3c75fa881cdde06891fc7dccb458219b9e50aca2",
+    "990": "0xde2d1474b6c4274f02acb67cb036329c03648d36",
+    "1033": "0x5463852367d41289e36f1672c8bc44704968ef38",
+    "1076": "0x90b3dc91687afb37aac36016a6fa65ca68981238",
+    "1119": "0x81cc1fe5244579f3027711882f26d8c37b9761a6",
+    "1162": "0xd221d11c7ac6bf9e598f331afe4544e9c1b339f3",
+    "1205": "0xcfb31ed4c438af372dd728e68c2e38e9bfcd39e5",
+    "1248": "0x545ef910c6cbb97ee0df691c4a952f7d024d392b",
+    "1291": "0xe0abd864b96a6c72d80717a750245a9f60289c93",
+    "1334": "0x92a738e22ea5bddf555371087f26c0d703943e94",
+    "1377": "0xfe9a2594955a7a2947e05d85bf18767d6d9823b6",
+    "1420": "0x1151f82b56b846b3b0af044a3d39333367846dde",
+    "1463": "0x1273b365e783cf2d6d31ca750eba471671d34af7"
+  },
+  "demoChogs": [
+    {
+      "tokenId": "474",
+      "address": "0x0ebb6072941a3cc487b84f03c8fa1bbee4be55ac",
+      "name": "CHOG #474",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/474.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Mint"
+        },
+        {
+          "traitType": "Aura",
+          "value": "Aqua Aura"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Side",
+          "value": "Left"
+        },
+        {
+          "traitType": "Body",
+          "value": "Guko"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Flat"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Retard"
+        },
+        {
+          "traitType": "Head",
+          "value": "Mon Beanie"
+        },
+        {
+          "traitType": "Accessory",
+          "value": "PEPE"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Uncommon"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "517",
+      "address": "0x945e1b1f12609224a244b9ce94560817f1912f8a",
+      "name": "CHOG #517",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/517.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Deep Blue"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Pink"
+        },
+        {
+          "traitType": "Side",
+          "value": "Left"
+        },
+        {
+          "traitType": "Body",
+          "value": "White Shirt"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Sad"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Smirk"
+        },
+        {
+          "traitType": "Head",
+          "value": "BTC Beanie"
+        },
+        {
+          "traitType": "Accessory",
+          "value": "SB"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Uncommon"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "560",
+      "address": "0xe32de6bc2b37361067747154ec9036d9cfac6d2a",
+      "name": "CHOG #560",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/560.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Coral Pink"
+        },
+        {
+          "traitType": "Aura",
+          "value": "Light Purple"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Pink"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Yellow Shirt"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Lip Bite"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Heart"
+        },
+        {
+          "traitType": "Head",
+          "value": "TISM Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "603",
+      "address": "0xb02edfbdda456ebd802f333020f8f5f15a842d48",
+      "name": "CHOG #603",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/603.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Mint"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Black Trackset"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Gold Tooth"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Anime Glass"
+        },
+        {
+          "traitType": "Head",
+          "value": "Dollar Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "646",
+      "address": "0xf31c629de382736af7842636179f746479da2264",
+      "name": "CHOG #646",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/646.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Rosie"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Pink"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Tuxedo"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Gold Tooth"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Sunset visor"
+        },
+        {
+          "traitType": "Head",
+          "value": "Star Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "689",
+      "address": "0x08a30a4b52ac4c427500951c0d2b1ad795df6f0a",
+      "name": "CHOG #689",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/689.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Lemon Yellow"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Red"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "normal smile"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Round"
+        },
+        {
+          "traitType": "Head",
+          "value": "Crown"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "732",
+      "address": "0x76577d204a5bd63b6d006222429c4d5124f4619c",
+      "name": "CHOG #732",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/732.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Mon"
+        },
+        {
+          "traitType": "Aura",
+          "value": "Cool Aura"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Red"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Banana suit"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Drooling"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Round"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "775",
+      "address": "0xfcf991beb05103bdf381abf11d66a0ec12903b2d",
+      "name": "CHOG #775",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/775.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Mint"
+        },
+        {
+          "traitType": "Aura",
+          "value": "Violet"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Duck Float"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Worried"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "fire laser"
+        },
+        {
+          "traitType": "Head",
+          "value": "Cloud Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "818",
+      "address": "0xcbd0da74ca2d1f61333f050da01e4fde5f98068b",
+      "name": "CHOG #818",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/818.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Light Purple"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Side",
+          "value": "Left"
+        },
+        {
+          "traitType": "Body",
+          "value": "Sky Hoodie"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Bubblegum"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Classic VR"
+        },
+        {
+          "traitType": "Head",
+          "value": "Choggie Beanie"
+        },
+        {
+          "traitType": "Accessory",
+          "value": "Fwog"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Uncommon"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "861",
+      "address": "0xe0abd864b96a6c72d80717a750245a9f60289c93",
+      "name": "CHOG #861",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/861.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Mon"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Red"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Gangster suit"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Teary"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "904",
+      "address": "0x0da745f2bd7655e4c70d6b02695ca772c8d2f69e",
+      "name": "CHOG #904",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/904.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Deep Blue"
+        },
+        {
+          "traitType": "Aura",
+          "value": "Burning Aura"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Side",
+          "value": "Left"
+        },
+        {
+          "traitType": "Body",
+          "value": "Yellow Hoodie"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Grit"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Side Eye"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Uncommon"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "947",
+      "address": "0x3c75fa881cdde06891fc7dccb458219b9e50aca2",
+      "name": "CHOG #947",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/947.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Aqua Mint"
+        },
+        {
+          "traitType": "Aura",
+          "value": "Purple"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Black"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Astro Suit"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Lip Bite"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Purple laser"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "990",
+      "address": "0xde2d1474b6c4274f02acb67cb036329c03648d36",
+      "name": "CHOG #990",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/990.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Fresh Green"
+        },
+        {
+          "traitType": "Aura",
+          "value": "Light Purple"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Pink"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Wizard"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "normal smile"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Heart"
+        },
+        {
+          "traitType": "Head",
+          "value": "Spartan Helmet"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "1033",
+      "address": "0x5463852367d41289e36f1672c8bc44704968ef38",
+      "name": "CHOG #1033",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/1033.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Fresh Green"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Yellow"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Duck Float"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Smile"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Side Eye"
+        },
+        {
+          "traitType": "Head",
+          "value": "Horny Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "1076",
+      "address": "0x90b3dc91687afb37aac36016a6fa65ca68981238",
+      "name": "CHOG #1076",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/1076.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Aqua Mint"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Pink"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Inmate"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "normal smile"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Round Eye"
+        },
+        {
+          "traitType": "Head",
+          "value": "Orange Bucket Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "1119",
+      "address": "0x81cc1fe5244579f3027711882f26d8c37b9761a6",
+      "name": "CHOG #1119",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/1119.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Light Purple"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Yellow"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Stripes"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Smile"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Gradient visor"
+        },
+        {
+          "traitType": "Head",
+          "value": "Dollar Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "1162",
+      "address": "0xd221d11c7ac6bf9e598f331afe4544e9c1b339f3",
+      "name": "CHOG #1162",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/1162.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Sky Blue"
+        },
+        {
+          "traitType": "Aura",
+          "value": "Fiery Aura"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Pink"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Kings Robe"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Gold Tooth"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Retro Glass"
+        },
+        {
+          "traitType": "Head",
+          "value": "Dollar Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "1205",
+      "address": "0xcfb31ed4c438af372dd728e68c2e38e9bfcd39e5",
+      "name": "CHOG #1205",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/1205.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Coral Pink"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Yellow"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Duck Float"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "wo"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Green laser"
+        },
+        {
+          "traitType": "Head",
+          "value": "Balls Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "1248",
+      "address": "0x545ef910c6cbb97ee0df691c4a952f7d024d392b",
+      "name": "CHOG #1248",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/1248.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Mon"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Red"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Cyan tuxedo"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "normal smile"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Retro Glass"
+        },
+        {
+          "traitType": "Head",
+          "value": "Crown"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "1291",
+      "address": "0xe0abd864b96a6c72d80717a750245a9f60289c93",
+      "name": "CHOG #1291",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/1291.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Light Purple"
+        },
+        {
+          "traitType": "Aura",
+          "value": "Violet"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Black"
+        },
+        {
+          "traitType": "Side",
+          "value": "Right"
+        },
+        {
+          "traitType": "Body",
+          "value": "Jesus"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "wo"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Plasma visor"
+        },
+        {
+          "traitType": "Head",
+          "value": "Orange Bucket Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Common"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "1334",
+      "address": "0x92a738e22ea5bddf555371087f26c0d703943e94",
+      "name": "CHOG #1334",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/1334.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Lemon"
+        },
+        {
+          "traitType": "Aura",
+          "value": "Rose Aura"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Pink"
+        },
+        {
+          "traitType": "Side",
+          "value": "Left"
+        },
+        {
+          "traitType": "Body",
+          "value": "blue tee"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Clown Mouth"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Angry"
+        },
+        {
+          "traitType": "Head",
+          "value": "Buttcoin Cap"
+        },
+        {
+          "traitType": "Accessory",
+          "value": "SB"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Uncommon"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "1377",
+      "address": "0xfe9a2594955a7a2947e05d85bf18767d6d9823b6",
+      "name": "CHOG #1377",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/1377.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Deep Blue"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Pink"
+        },
+        {
+          "traitType": "Side",
+          "value": "Left"
+        },
+        {
+          "traitType": "Body",
+          "value": "pink vest"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Sad"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Retard"
+        },
+        {
+          "traitType": "Head",
+          "value": "Rainbow Wig"
+        },
+        {
+          "traitType": "Accessory",
+          "value": "SB"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Uncommon"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "1420",
+      "address": "0x1151f82b56b846b3b0af044a3d39333367846dde",
+      "name": "CHOG #1420",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/1420.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Light Purple"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Pink"
+        },
+        {
+          "traitType": "Side",
+          "value": "Left"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "BTC Coin"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Side Eye"
+        },
+        {
+          "traitType": "Head",
+          "value": "10k TPS Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Uncommon"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    },
+    {
+      "tokenId": "1463",
+      "address": "0x1273b365e783cf2d6d31ca750eba471671d34af7",
+      "name": "CHOG #1463",
+      "image": "ipfs://bafybeihau2egcccbdxymeckmmbrqytbfor5gkt3en6d5fsbueymdbq7g6e/1463.webp",
+      "description": "",
+      "traits": [
+        {
+          "traitType": "Background",
+          "value": "Sunlight"
+        },
+        {
+          "traitType": "Aura",
+          "value": "Aqua Aura"
+        },
+        {
+          "traitType": "Base",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Skin",
+          "value": "Origin"
+        },
+        {
+          "traitType": "Side",
+          "value": "Left"
+        },
+        {
+          "traitType": "Body",
+          "value": "Mon Hoodie"
+        },
+        {
+          "traitType": "Mouth",
+          "value": "Flat"
+        },
+        {
+          "traitType": "Eyes",
+          "value": "Modern VR"
+        },
+        {
+          "traitType": "Head",
+          "value": "Chog Cap"
+        },
+        {
+          "traitType": "Form",
+          "value": "Chog"
+        },
+        {
+          "traitType": "Tier",
+          "value": "Uncommon"
+        },
+        {
+          "traitType": "Naked",
+          "value": "No"
+        }
+      ]
+    }
+  ]
+}

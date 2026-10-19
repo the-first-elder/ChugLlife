@@ -1,0 +1,72 @@
+import { createPublicClient, http, Address, defineChain } from "viem";
+
+export const monadTestnet = defineChain({
+  id: 10143,
+  name: "Monad Testnet",
+  nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://testnet-rpc.monad.xyz"] },
+    public: { http: ["https://testnet-rpc.monad.xyz"] },
+  },
+  blockExplorers: {
+    default: { name: "Monad Explorer", url: "https://testnet.monadexplorer.com" },
+  },
+  testnet: true,
+});
+
+export const monadMainnet = defineChain({
+  id: 143,
+  name: "Monad",
+  nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://rpc.monad.xyz"] },
+    public: { http: ["https://rpc.monad.xyz"] },
+  },
+  blockExplorers: {
+    default: { name: "MonadScan", url: "https://monadscan.com" },
+  },
+  testnet: false,
+});
+
+export const monad = monadTestnet;
+
+export const monadPublicClient = createPublicClient({
+  chain: monadTestnet,
+  transport: http("https://testnet-rpc.monad.xyz"),
+  batch: { multicall: true },
+});
+
+/**
+ * Chog Genesis — the canonical 1969-piece Chog NFT collection on Monad.
+ * Your Chog IS your identity in Chuglife.
+ */
+export const CHOG_NFT_ADDRESS: Address =
+  "0xc96d31F8626c6D03Fae5dCD3d61e3FB9F4a73763";
+
+/** $CHOG token on Monad (optional bonus feature: tipping matches). */
+export const CHOG_TOKEN_ADDRESS: Address =
+  "0x350035555E10d9AfAF1566AaebfCeD5BA6C27777";
+
+export const IPFS_GATEWAYS = [
+  "https://ipfs.filebase.io/ipfs/",
+  "https://gateway.pinata.cloud/ipfs/",
+  "https://4everland.io/ipfs/",
+];
+
+export const IPFS_GATEWAY = IPFS_GATEWAYS[0];
+
+/** Stable per-URI choice so retries (onerror) pick the next gateway. */
+export function ipfsGateways(uri: string): string[] {
+  if (!uri) return [];
+  const cidPath = (() => {
+    if (uri.startsWith("ipfs://")) return uri.slice("ipfs://".length);
+    if (uri.startsWith("/ipfs/")) return uri.slice("/ipfs/".length);
+    return null;
+  })();
+  if (cidPath === null) return [uri];
+  return IPFS_GATEWAYS.map((gw) => gw + cidPath.replace(/^ipfs\//, ""));
+}
+
+export function ipfsUrl(uri: string): string {
+  return ipfsGateways(uri)[0] ?? "";
+}
