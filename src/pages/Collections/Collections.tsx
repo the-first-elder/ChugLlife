@@ -53,31 +53,30 @@ const Collections: React.FC = () => {
   }, [address, client, isDemo, connected]);
 
   return (
-    <main className="justify-center my-8 px-4 sm:px-10 text-[#f4f1fe] max-w-6xl mx-auto pb-16">
+    <main className="justify-center my-8 px-4 sm:px-10 text-[#f4f1fe] max-w-6xl mx-auto pb-28">
       <div className="flex gap-6 max-md:flex-col">
         <aside className="flex flex-col w-full md:w-80 shrink-0">
           <ProfileCard address={myAddress} chogs={chogs} error={error} />
         </aside>
         <section className="flex flex-col grow">
           <div className="flex flex-col justify-center self-stretch">
-            <h1 className="text-xl font-extrabold mb-4 text-[#f4f1fe] flex items-center gap-2">
-              <span>🐸</span> My Chogs
+            <h1 className="cl-fade-in text-xl font-extrabold mb-4 text-[#f4f1fe] flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-2xl border border-[#836ef9]/30 bg-[#836ef9]/15 text-base shadow-chog-sm">
+                🐸
+              </span>
+              My Chogs
             </h1>
             {!connected ? (
-              <div className="text-center text-sm bg-[#161228] p-8 rounded-2xl border border-white/10 relative overflow-hidden">
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#836ef9]/15 rounded-full blur-2xl pointer-events-none" />
+              <div className="cl-empty cl-fade-in">
                 <LucideWallet size={30} className="mx-auto text-[#836ef9]" />
                 <p className="font-bold text-[#f4f1fe] mt-3">
                   Sign in to see your Chogs
                 </p>
-                <p className="text-xs text-[#f4f1fe]/55 mt-1.5 max-w-sm mx-auto leading-relaxed">
+                <p className="text-xs text-[#f4f1fe]/55 mt-2 max-w-sm mx-auto leading-relaxed">
                   Your profile, stats, and vibe identity load from the Chogs
                   held by your wallet.
                 </p>
-                <Link
-                  to="/login"
-                  className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-2xl bg-[#836ef9] text-white font-bold text-xs shadow-chog-sm hover:bg-[#9d8dfc] active:scale-95 transition"
-                >
+                <Link to="/login" className="cl-btn cl-btn-primary cl-btn-md mt-4">
                   <LucideSparkles size={14} /> Sign in / Try the demo
                 </Link>
               </div>

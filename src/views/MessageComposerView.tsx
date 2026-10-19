@@ -65,25 +65,25 @@ export default function MessageComposerView({
       {modNotice && (
         <div
           data-testid="composer-mod-notice"
-          className="max-w-3xl mx-auto mb-2 p-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-200 text-xs flex items-center gap-2 animate-shake"
+          className="cl-fade-in max-w-3xl mx-auto mb-2.5 px-3 py-2.5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-200 text-xs flex items-center gap-2 horizontal-shake"
         >
           <LucideShieldAlert size={16} className="text-red-400 shrink-0" />
           <span>{modNotice}</span>
         </div>
       )}
       <form
-        className="flex gap-2 items-center max-w-3xl mx-auto"
+        className="flex items-center gap-2 max-w-3xl mx-auto"
         onSubmit={(e) => void onSubmit(e)}
       >
-        <div className="flex-grow border border-[rgba(244,241,254,0.12)] rounded-2xl bg-[#161228] shadow-inner px-3 py-2 flex items-center focus-within:border-[#836ef9] focus-within:ring-1 focus-within:ring-[#836ef9]/40 transition">
+        <div className="relative flex min-w-0 flex-1 items-center">
           <input
             type="text"
             placeholder={
               isRoom
-                ? "Send a message to this room (+5 MON)…"
+                ? "Send a message to this room…"
                 : "Type a chog message…"
             }
-            className="w-full outline-none bg-transparent text-[#f4f1fe] placeholder-[#f4f1fe]/40 text-sm"
+            className="cl-input w-full min-h-[46px] rounded-full border-white/10 bg-[#1b1533] px-5 py-3 pr-4 text-[16px] leading-tight placeholder:text-[#f4f1fe]/35 focus:border-[#836ef9]/60 focus:bg-[#1e1838] transition"
             name="text"
             autoComplete="off"
             data-testid="composer-input"
@@ -100,11 +100,12 @@ export default function MessageComposerView({
         </div>
         <button
           type="submit"
-          className="p-3 rounded-2xl bg-[#836ef9] hover:bg-[#9d8dfc] disabled:opacity-40 disabled:hover:bg-[#836ef9] text-white shadow-chog-sm transition flex items-center justify-center shrink-0"
+          className="cl-btn cl-btn-primary flex h-[46px] w-[46px] shrink-0 items-center justify-center !rounded-full p-0 shadow-[0_4px_16px_-4px_rgba(131,110,249,0.6)] disabled:opacity-40 disabled:shadow-none"
           disabled={sending || !textInput.trim()}
+          aria-label="Send message"
           title="Send message"
         >
-          <LucideSend size={16} />
+          <LucideSend size={18} className={sending ? "opacity-60" : ""} />
         </button>
       </form>
     </div>

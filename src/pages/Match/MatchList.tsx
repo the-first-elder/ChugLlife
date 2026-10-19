@@ -80,7 +80,7 @@ const MatchList = () => {
   }, [tokenId, address]);
 
   return (
-    <div className="text-[#f4f1fe] max-w-6xl mx-auto p-4 pt-8 min-h-[60vh]">
+    <div className="text-[#f4f1fe] max-w-6xl mx-auto p-4 pt-8 pb-28 min-h-[60vh]">
       <h1 className="text-2xl font-extrabold text-center my-6 tracking-tight">
         Chogs who vibe with <span className="text-[#836ef9]">#{tokenId}</span>
       </h1>

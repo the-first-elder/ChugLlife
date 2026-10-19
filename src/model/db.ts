@@ -72,11 +72,11 @@ export interface ChogNft {
 export interface Activity {
   /** wallet address / identity key, lowercase */
   key: string;
-  /** MON balance (shop currency, earned by being active) */
+  /** shop balance (points) */
   points: number;
-  /** lifetime chat points earned */
+  /** lifetime chat points */
   chatPoints: number;
-  /** lifetime presence points earned */
+  /** lifetime presence points */
   presencePoints: number;
   /** total minutes spent online */
   onlineMinutes: number;

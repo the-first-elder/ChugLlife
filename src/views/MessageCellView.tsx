@@ -22,7 +22,13 @@ export function Content({ message }: { message: Message }): ReactElement {
     };
     return (
       <span className="flex flex-col">
-        <span className="text-[9px] opacity-60 border-l-2 pl-1 border-current/40">
+        <span
+          className={`text-[10px] border-l-2 pl-1.5 mb-1 ${
+            message.sentByMe
+              ? "text-white/70 border-white/30"
+              : "text-[#f4f1fe]/60 border-[#836ef9]/50"
+          }`}
+        >
           ↩ replying to a message
         </span>
         <span className="whitespace-pre-wrap">{reply?.content ?? ""}</span>
@@ -104,8 +110,8 @@ export default function MessageCellView({
     <div
       className={
         message.sentByMe
-          ? "self-end flex flex-col max-w-[85%] sm:max-w-lg px-4 py-2.5 rounded-2xl rounded-tr-sm bg-gradient-to-tr from-[#836ef9] to-[#7058f5] text-white shadow-chog-sm"
-          : "self-start flex flex-col max-w-[85%] sm:max-w-lg px-4 py-2.5 rounded-2xl rounded-tl-sm bg-[#161228] border border-[rgba(244,241,254,0.12)] text-[#f4f1fe] shadow-sm"
+          ? "self-end flex flex-col max-w-[85%] sm:max-w-lg px-3.5 py-2.5 rounded-2xl rounded-br-md bg-gradient-to-br from-[#836ef9] to-[#7058f5] text-white shadow-chog"
+          : "self-start flex flex-col max-w-[85%] sm:max-w-lg px-3.5 py-2.5 rounded-2xl rounded-bl-md bg-[#161228] border border-[rgba(244,241,254,0.12)] text-[#f4f1fe] shadow-sm"
       }
     >
       <div className="space-y-1.5 text-xs w-full">
@@ -121,7 +127,11 @@ export default function MessageCellView({
               />
             )}
           </span>
-          <span className="text-[9px] opacity-60 font-mono">
+          <span
+            className={`text-[9px] font-mono tabular-nums ${
+              message.sentByMe ? "text-white/65" : "text-[#f4f1fe]/50"
+            }`}
+          >
             {time}
             {message.isSending && " · sending…"}
           </span>
@@ -135,14 +145,14 @@ export default function MessageCellView({
           <div className="py-1">
             {replies.slice(-1).map((r) => (
               <div
-                className={`flex flex-col text-xs rounded-xl p-2 ${
+                className={`flex flex-col text-xs rounded-xl rounded-tl-sm p-2 border-l-2 ${
                   message.sentByMe
-                    ? "bg-black/20 text-white/90"
-                    : "bg-[#1e183a] text-[#f4f1fe]/80"
+                    ? "bg-black/20 text-white/90 border-white/25"
+                    : "bg-[#1e183a] text-[#f4f1fe]/80 border-[#836ef9]/40"
                 }`}
                 key={r.xmtpID}
               >
-                <span className="text-[9px] opacity-70 font-mono">
+                <span className={`text-[9px] font-mono ${message.sentByMe ? "text-white/70" : "text-[#f4f1fe]/55"}`}>
                   {shortAddress(r.senderAddress)}
                 </span>
                 <MessageContent message={r} />

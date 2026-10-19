@@ -16,8 +16,8 @@ export interface ShopItem {
   name: string;
   emoji: string;
   blurb: string;
-  /** MON price */
-  price: number;
+  /** Price in native MON — paid straight from the buyer's wallet. */
+  price: string;
   kind: "capacity" | "powerup" | "cosmetic";
 }
 
@@ -27,7 +27,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Room Pack: 5 rooms",
     emoji: "🏘️",
     blurb: "Raise your room creation cap from 1 to 5. Keep the noise down, keep the vibes up.",
-    price: 1000,
+    price: "0.05",
     kind: "capacity",
   },
   {
@@ -35,15 +35,15 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Room Pack: 8 rooms",
     emoji: "🏙️",
     blurb: "Raise your room creation cap to 8. For true community landlords. Expand your network.",
-    price: 1500,
+    price: "0.09",
     kind: "capacity",
   },
   {
     id: "turbo",
     name: "Turbo Vibes (1h)",
     emoji: "🚀",
-    blurb: "Double MON earnings for one hour: 10 MON per message and 2 MON per online minute.",
-    price: 300,
+    blurb: "Double your rank progress for one hour — climb the ladder twice as fast.",
+    price: "0.02",
     kind: "powerup",
   },
   {
@@ -51,7 +51,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Neon Name Glow",
     emoji: "🪛",
     blurb: "Your display name glows radioactive chog violet in every room and chat cell.",
-    price: 500,
+    price: "0.03",
     kind: "cosmetic",
   },
   {
@@ -59,7 +59,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Chog Police Badge",
     emoji: "🛡️",
     blurb: "Honorary police shield displayed next to your handle across all public rooms.",
-    price: 400,
+    price: "0.03",
     kind: "powerup",
   },
   {
@@ -67,7 +67,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Cosmic Neon Theme",
     emoji: "🌌",
     blurb: "Unlock radiant violet particle aura on your chat bubbles and profile card.",
-    price: 800,
+    price: "0.05",
     kind: "cosmetic",
   },
   {
@@ -75,7 +75,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Chog Reaction Pack",
     emoji: "🐸",
     blurb: "Exclusive frog reaction set: 🐸 🚀 💎 🔥 👑 with vibrating animations.",
-    price: 450,
+    price: "0.03",
     kind: "cosmetic",
   },
   {
@@ -83,28 +83,18 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Founder Wordmark",
     emoji: "👑",
     blurb: "A sparkling radiant crown next to your handle. Pure prestige status. Prove you were early.",
-    price: 2500,
+    price: "0.15",
     kind: "cosmetic",
   },
 ];
 
-const CREDITS: Partial<Record<(typeof SHOP_ITEMS)[number]["id"], number>> = {
-  "rooms-5": 4,
-  "rooms-8": 7,
-};
-
+/** Flip the local (Dexie) switches for an item once its on-chain payment landed. */
 export async function applyPurchase(
   activity: Activity,
   item: ShopItem
 ): Promise<Activity> {
-  if (activity.points < item.price) {
-    throw new Error(`Not enough MON — need ${item.price}, have ${activity.points}`);
-  }
   const now = Date.now();
-  const patch: Partial<Activity> = {
-    points: activity.points - item.price,
-    purchasedAt: new Date(),
-  };
+  const patch: Partial<Activity> = { purchasedAt: new Date() };
   if (item.id === "rooms-5") {
     patch.roomSlots = Math.max(activity.roomSlots, 5);
   }
@@ -117,5 +107,3 @@ export async function applyPurchase(
   await db.activity.update(activity.key, patch);
   return { ...activity, ...patch } as Activity;
 }
-
-export const SHOP_CREDITS: typeof CREDITS = CREDITS;

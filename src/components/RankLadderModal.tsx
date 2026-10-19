@@ -2,7 +2,7 @@ import { ReactElement } from "react";
 import { RANKS, rankProgress } from "../model/rank";
 import { Activity } from "../model/db";
 import RankBadge from "./RankBadge";
-import { LucideX, LucideFlame, LucideClock, LucideMessageSquare, LucideSparkles } from "lucide-react";
+import { LucideX, LucideClock, LucideMessageSquare, LucideSparkles, LucideCheck } from "lucide-react";
 
 export default function RankLadderModal({
   activity,
@@ -19,153 +19,234 @@ export default function RankLadderModal({
   const { rank: currentRank, next, pct } = rankProgress(points);
   const messages = activity?.messageCount ?? 0;
   const onlineHours = activity ? Math.round((activity.onlineMinutes / 60) * 10) / 10 : 0;
+  const remaining = next ? Math.max(0, next.min - points) : 0;
+
+  const RING = 44;
+  const circumference = 2 * Math.PI * RING;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#141026] border border-[#836ef9]/30 rounded-3xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-chog-lg overflow-hidden text-[#f4f1fe]">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Chuglife Rank Ladder"
+    >
+      <div className="cl-card cl-fade-in flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden text-[#f4f1fe]">
         {/* Header */}
-        <div className="p-5 border-b border-[rgba(244,241,254,0.1)] flex items-center justify-between bg-[#161228]/80">
-          <div className="flex items-center gap-2.5">
-            <span className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#f59e0b] to-[#ffd700] text-black flex items-center justify-center text-lg shadow-sm">
+        <div className="relative flex items-center justify-between gap-3 border-b border-white/10 p-4">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#836ef9]/20 to-transparent"
+          />
+          <div className="relative flex min-w-0 items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#f59e0b] to-[#ffd700] text-lg text-black shadow-[0_0_18px_-4px_rgba(245,158,11,0.7)]">
               👑
             </span>
-            <div>
-              <h2 className="font-extrabold text-base tracking-tight">Chuglife Rank Ladder</h2>
-              <p className="text-[11px] text-[#f4f1fe]/50">
-                11 Prestigious Tiers · Earn by Chatting & Staying Active
+            <div className="min-w-0">
+              <h2 className="text-base font-extrabold tracking-tight">Chuglife Rank Ladder</h2>
+              <p className="truncate text-[11px] text-[#f4f1fe]/55">
+                11 tiers · Climb through community activity
               </p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/10 text-[#f4f1fe]/60 hover:text-white transition"
+            aria-label="Close rank ladder"
+            className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 text-[#f4f1fe]/60 transition hover:border-white/20 hover:bg-white/10 hover:text-white active:scale-95"
           >
-            <LucideX size={18} />
+            <LucideX size={17} />
           </button>
         </div>
 
-        {/* User Current Standing Card */}
-        <div className="p-5 bg-gradient-to-b from-[#181330] to-[#141026] border-b border-[rgba(244,241,254,0.08)]">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-3">
-              <RankBadge rank={currentRank} size="lg" showLevel />
-              <div>
-                <div className="text-xs font-bold text-[#f4f1fe]">
-                  Level {currentRank.level} · {currentRank.name}
-                </div>
-                <div className="text-[10px] text-[#5ce68a] font-mono">
-                  {points.toLocaleString()} total activity pts
-                </div>
+        {/* Current standing */}
+        <div className="border-b border-white/10 bg-gradient-to-b from-[#181330] to-[#141026] px-4 py-5 sm:px-5">
+          <div className="flex items-center gap-4">
+            {/* Progress ring */}
+            <div className="relative h-24 w-24 shrink-0">
+              <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r={RING + 2}
+                  fill="none"
+                  stroke="rgba(255,255,255,0.08)"
+                  strokeWidth="6"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r={RING + 2}
+                  fill="none"
+                  stroke={currentRank.color}
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={circumference * (1 - pct / 100)}
+                  className="transition-all duration-700 ease-out"
+                  style={{ filter: `drop-shadow(0 0 5px ${currentRank.color}88)` }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <RankBadge rank={currentRank} size="md" />
+                <span className="mt-1 font-mono text-[10px] font-bold tabular-nums text-[#f4f1fe]/70">
+                  {pct}%
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-xs font-mono bg-black/40 px-3 py-1.5 rounded-xl border border-white/5">
-              <span className="flex items-center gap-1 text-[#f4f1fe]/80" title="Messages sent">
-                <LucideMessageSquare size={13} className="text-[#836ef9]" />
-                {messages} msgs
-              </span>
-              <span className="text-white/20">|</span>
-              <span className="flex items-center gap-1 text-[#f4f1fe]/80" title="Active hours online">
-                <LucideClock size={13} className="text-[#5ce68a]" />
-                {onlineHours}h online
-              </span>
+            <div className="min-w-0 flex-1">
+              <div className="font-mono text-[10px] uppercase tracking-widest text-[#836ef9]">
+                Level {currentRank.level} of {RANKS.length}
+              </div>
+              <div className="mt-0.5 flex items-center gap-2 text-lg font-extrabold tracking-tight">
+                {currentRank.name}
+                <span aria-hidden>{currentRank.emoji}</span>
+              </div>
+              <div className="mt-1 font-mono text-[11px] text-[#f4f1fe]/50 tabular-nums">
+                {points.toLocaleString()} activity pts
+              </div>
             </div>
           </div>
 
-          {/* Progress Bar */}
+          {/* Next-tier progress */}
           <div className="mt-4">
-            <div className="flex items-center justify-between text-[11px] font-mono mb-1.5">
-              <span className="text-[#f4f1fe]/60">
-                Progress to {next ? `${next.emoji} ${next.name}` : "Max Rank"}
+            <div className="mb-2 flex items-center justify-between font-mono text-[10px]">
+              <span className="text-[#f4f1fe]/55">
+                {next ? `Next: ${next.emoji} ${next.name}` : "Apex reached — all tiers unlocked"}
               </span>
-              <span className="text-[#f59e0b] font-bold">{pct}%</span>
+              {next && (
+                <span className="font-bold text-[#f59e0b] tabular-nums">
+                  {remaining.toLocaleString()} pts to go
+                </span>
+              )}
             </div>
-            <div className="h-2.5 bg-black/50 rounded-full overflow-hidden p-0.5 border border-white/10">
+            <div className="h-2 overflow-hidden rounded-full border border-white/10 bg-black/50">
               <div
-                className="h-full rounded-full transition-all duration-500"
+                className="h-full rounded-full transition-all duration-700 ease-out"
                 style={{
                   width: `${pct}%`,
                   background: `linear-gradient(90deg, ${currentRank.color}, ${next?.color ?? currentRank.color})`,
-                  boxShadow: `0 0 10px ${currentRank.color}88`,
+                  boxShadow: `0 0 10px ${currentRank.color}66`,
                 }}
               />
             </div>
-            <div className="flex justify-between text-[10px] text-[#f4f1fe]/40 mt-1 font-mono">
-              <span>{points} pts</span>
-              <span>{next ? `${next.min - points} pts remaining` : "♛ Apex Legendary Chog"}</span>
-            </div>
           </div>
 
-          {/* How points work */}
-          <div className="mt-3.5 pt-3 border-t border-white/5 grid grid-cols-2 gap-2 text-[11px] text-[#f4f1fe]/70">
-            <div className="flex items-center gap-1.5 bg-white/5 p-2 rounded-xl">
-              <LucideFlame size={14} className="text-[#f59e0b]" />
-              <span><strong>+5 MON</strong> per message sent</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-white/5 p-2 rounded-xl">
-              <LucideClock size={14} className="text-[#5ce68a]" />
-              <span><strong>+1 MON</strong> per active minute</span>
-            </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="cl-chip">
+              <LucideMessageSquare size={13} className="text-[#836ef9]" />
+              {messages.toLocaleString()} msgs
+            </span>
+            <span className="cl-chip">
+              <LucideClock size={13} className="text-[#5ce68a]" />
+              {onlineHours}h online
+            </span>
+            <span className="cl-chip">
+              <LucideSparkles size={13} className="text-[#f59e0b]" />
+              {RANKS.filter((r) => points >= r.min).length} tiers unlocked
+            </span>
           </div>
         </div>
 
-        {/* 11 Ranks Progression List */}
-        <div className="overflow-y-auto p-4 space-y-2.5 flex-1 divide-y divide-white/5">
-          <div className="text-[11px] font-mono uppercase tracking-wider text-[#f4f1fe]/40 px-1 pt-1">
-            Complete Rank Hierarchy
+        {/* Tier timeline */}
+        <div className="flex-1 overflow-y-auto px-4 pb-5 pt-3">
+          <div className="cl-section-title sticky top-0 z-10 bg-[#161228]/90 pb-2 pt-1 backdrop-blur-sm">
+            Rank hierarchy
           </div>
-          {RANKS.map((r) => {
-            const isCurrent = r.level === currentRank.level;
-            const isUnlocked = points >= r.min;
+          <ol className="relative ml-1 space-y-1">
+            <span
+              aria-hidden
+              className="absolute bottom-4 left-[15px] top-4 w-px bg-gradient-to-b from-[#836ef9]/50 via-white/10 to-transparent"
+            />
+            {RANKS.map((r) => {
+              const isCurrent = r.level === currentRank.level;
+              const isUnlocked = points >= r.min;
 
-            return (
-              <div
-                key={r.level}
-                className={`pt-2.5 flex items-center justify-between p-2 rounded-2xl transition ${
-                  isCurrent
-                    ? "bg-[#836ef9]/15 border border-[#836ef9]/40 shadow-sm"
-                    : isUnlocked
-                    ? "bg-white/[0.02] hover:bg-white/[0.04]"
-                    : "opacity-45 hover:opacity-70"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-6 font-mono text-xs font-bold text-[#f4f1fe]/40 text-center">
-                    #{r.level}
+              return (
+                <li
+                  key={r.level}
+                  className={`relative flex items-center gap-3 rounded-xl py-2 pl-1.5 pr-2 transition ${
+                    isCurrent ? "bg-[#836ef9]/15" : "hover:bg-white/[0.03]"
+                  }`}
+                >
+                  <span
+                    className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold ${
+                      isCurrent
+                        ? "border-transparent text-[#0e0b1a]"
+                        : isUnlocked
+                        ? "border-[#5ce68a]/40 bg-[#5ce68a]/10 text-[#5ce68a]"
+                        : "border-white/10 bg-[#161228] text-[#f4f1fe]/35"
+                    }`}
+                    style={
+                      isCurrent
+                        ? { background: r.color, boxShadow: `0 0 12px ${r.color}66` }
+                        : undefined
+                    }
+                  >
+                    {isCurrent ? r.level : isUnlocked ? <LucideCheck size={12} /> : r.level}
                   </span>
-                  <RankBadge rank={r} size="md" />
-                </div>
 
-                <div className="flex items-center gap-3 text-right font-mono text-xs">
-                  <div>
-                    <span className="text-[#f4f1fe]/70 font-bold">
-                      {r.min.toLocaleString()} pts
-                    </span>
-                    <div className="text-[9px] text-[#f4f1fe]/40">
-                      {r.level === 1
-                        ? "Starting rank"
-                        : `~${Math.round(r.min / 10)} msgs & time`}
+                  <RankBadge rank={r} size="sm" />
+
+                  <div className="min-w-0 flex-1">
+                    <div
+                      className={`flex items-baseline gap-2 text-sm font-bold ${
+                        isCurrent
+                          ? "text-[#f4f1fe]"
+                          : isUnlocked
+                          ? "text-[#f4f1fe]/75"
+                          : "text-[#f4f1fe]/40"
+                      }`}
+                    >
+                      <span className="truncate">{r.name}</span>
+                      <span className="font-mono text-[10px] font-normal text-[#f4f1fe]/40 tabular-nums">
+                        {r.min.toLocaleString()} pts
+                      </span>
+                    </div>
+                    <div className="font-mono text-[9px] uppercase tracking-wider text-[#f4f1fe]/30">
+                      Tier {r.level}
                     </div>
                   </div>
+
                   {isCurrent ? (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#836ef9] text-white font-bold">
+                    <span
+                      className="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold text-[#0e0b1a]"
+                      style={{ background: r.color }}
+                    >
                       Current
                     </span>
                   ) : isUnlocked ? (
-                    <span className="text-xs text-[#5ce68a]">✓</span>
+                    <span className="shrink-0 font-mono text-[9px] uppercase tracking-wider text-[#5ce68a]/80">
+                      Unlocked
+                    </span>
                   ) : (
-                    <span className="text-xs text-white/30">🔒</span>
+                    <span aria-hidden className="shrink-0 text-[11px] text-white/20">
+                      🔒
+                    </span>
                   )}
-                </div>
-              </div>
-            );
-          })}
+                </li>
+              );
+            })}
+          </ol>
         </div>
 
         {/* Footer */}
-        <div className="p-3 bg-[#161228] border-t border-[rgba(244,241,254,0.1)] text-center text-[11px] text-[#f4f1fe]/50 flex items-center justify-center gap-2">
-          <LucideSparkles size={13} className="text-[#836ef9]" />
-          Higher ranks unlock exclusive prestige badges, shop discounts & chat glow!
+        <div className="space-y-2.5 border-t border-white/10 bg-[#161228] p-4">
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <span className="cl-chip">
+              <LucideMessageSquare size={13} className="text-[#836ef9]" />
+              Chatting pushes your rank up
+            </span>
+            <span className="cl-chip">
+              <LucideClock size={13} className="text-[#5ce68a]" />
+              Hanging out boosts it too
+            </span>
+          </div>
+          <p className="flex items-center justify-center gap-1.5 text-center text-[10px] text-[#f4f1fe]/50">
+            <LucideSparkles size={12} className="shrink-0 text-[#836ef9]" />
+            Higher ranks unlock prestige badges, shop discounts & chat glow
+          </p>
         </div>
       </div>
     </div>

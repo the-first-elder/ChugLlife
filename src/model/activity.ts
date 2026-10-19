@@ -1,6 +1,6 @@
 import db, { Activity } from "./db";
 
-/** MON earn rates. Cheap enough that ranks feel alive, expensive enough that spamming is pointless. */
+/** Point rates. Cheap enough that ranks feel alive, expensive enough that spamming is pointless. */
 export const EARN_PER_MESSAGE = 5;
 export const EARN_PER_ONLINE_MINUTE = 1;
 

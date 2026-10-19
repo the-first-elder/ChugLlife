@@ -8,7 +8,10 @@ export default defineConfig({
   },
   plugins: [react()],
   optimizeDeps: {
-    exclude: ["@xmtp/browser-sdk"],
+    // XMTP docs: the wasm module + its worker must not be pre-bundled, or the
+    // OPFS sqlite worker traps with "memory access out of bounds".
+    exclude: ["@xmtp/wasm-bindings", "@xmtp/browser-sdk"],
+    include: ["@xmtp/content-type-primitives"],
   },
   server: {
     port: 5173,

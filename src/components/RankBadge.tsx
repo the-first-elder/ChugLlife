@@ -18,16 +18,18 @@ export default function RankBadge(p: {
   const isTier4 = level >= 10;
 
   const pad = isSm
-    ? "px-2 py-0.5 text-[10px]"
+    ? "px-2 py-1 text-[10px]"
     : isLg
-    ? "px-3.5 py-1.5 text-sm"
-    : "px-2.5 py-1 text-xs";
+    ? "px-4 py-2 text-sm"
+    : "px-3 py-1 text-xs";
+
+  const dotSize = isSm ? "h-1 w-1" : "h-1.5 w-1.5";
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full font-bold select-none transition-all duration-300 ${pad} ${
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full font-bold leading-none align-middle select-none transition-all duration-300 motion-reduce:transition-none ${pad} ${
         isTier4
-          ? "ring-1 ring-[#FFD700]/70 shadow-[0_0_18px_rgba(255,215,0,0.4)] animate-pulse"
+          ? "ring-1 ring-[#FFD700]/70 shadow-[0_0_18px_rgba(255,215,0,0.4)] motion-reduce:animate-none animate-pulse"
           : isTier3
           ? "ring-1 ring-purple-400/50 shadow-[0_0_12px_rgba(168,85,247,0.3)]"
           : isTier2
@@ -47,26 +49,23 @@ export default function RankBadge(p: {
     >
       <span
         aria-hidden
-        className={`${
-          isTier4 ? "scale-110 drop-shadow-[0_0_6px_gold]" : ""
-        }`}
-      >
+        className={`${dotSize} shrink-0 rounded-full`}
+        style={{ backgroundColor: color, boxShadow: `0 0 6px ${color}` }}
+      />
+      <span aria-hidden className={`${isTier4 ? "drop-shadow-[0_0_6px_gold]" : ""}`}>
         {emoji}
       </span>
       <span className="tracking-tight">{name}</span>
       {p.showLevel && (
-        <span
-          className="text-[9px] font-mono opacity-70 px-1 py-0.2 rounded bg-black/30"
-        >
+        <span className="rounded bg-black/30 px-1 py-px font-mono text-[9px] opacity-70">
           L{level}
         </span>
       )}
       {isTier4 && (
-        <span className="text-[10px] text-amber-300 drop-shadow animate-ping">
+        <span aria-hidden className="text-[10px] text-amber-300 drop-shadow">
           ✨
         </span>
       )}
     </span>
   );
 }
-

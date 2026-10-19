@@ -21,14 +21,17 @@ export default function Button({
   id?: string;
   testId?: string;
 }): ReactElement {
-  const buttonColor =
-    disabled
-      ? "bg-chog-ink/20 text-chog-ink/60"
-      : color === "secondary"
-        ? "bg-white text-chog-ink border border-chog-ink/15 hover:bg-chog-cream"
-        : "bg-chog-pink text-white hover:bg-chog-pink-deep";
+  const callerOwnsBackground = (className ?? "").includes("bg-");
 
-  const buttonSize = size === "sm" ? "text-xs px-3 py-1.5" : "text-sm px-4 py-2.5";
+  const buttonColor = disabled
+    ? "bg-white/5 text-[#f4f1fe]/45 border border-white/10 cursor-not-allowed"
+    : color === "secondary"
+      ? "cl-btn-ghost"
+      : callerOwnsBackground
+        ? "bg-[#836ef9] hover:bg-[#9d8dfc] text-white shadow-chog-sm"
+        : "cl-btn-primary";
+
+  const buttonSize = size === "sm" ? "cl-btn-sm" : "cl-btn-md";
 
   return (
     <button
@@ -36,7 +39,7 @@ export default function Button({
       disabled={disabled}
       type={type}
       data-testid={testId}
-      className={`${buttonColor} ${buttonSize} rounded-full inline-flex items-center font-bold text-white transition shadow-chog-sm ${className}`}
+      className={`cl-btn ${buttonColor} ${buttonSize} ${className ?? ""}`}
       onClick={onClick}
     >
       {children}

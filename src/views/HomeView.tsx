@@ -2,7 +2,7 @@ import { ReactElement, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import ConversationListView from "./ConversationListView";
 import { shortAddress } from "../util/shortAddress";
-import { useAccount, useDisconnect } from "wagmi";
+import { useAccount, useBalance, useDisconnect } from "wagmi";
 import { useClient, useClientStatus } from "../hooks/useClient";
 import { clientAddress } from "../model/conversations";
 import db from "../model/db";
@@ -26,12 +26,16 @@ export default function HomeView(): ReactElement {
   const client = useClient();
   const { stopDemo, isDemo } = useClientStatus();
   const { address } = useAccount();
+  const { data: balance } = useBalance({ address });
   const { disconnectAsync } = useDisconnect();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [showRankModal, setShowRankModal] = useState(false);
 
   const myAddress = client ? clientAddress(client) : (address ?? "");
+  const walletMon = balance
+    ? Number(balance.formatted).toLocaleString(undefined, { maximumFractionDigits: 4 })
+    : undefined;
   const activity = useLiveQuery(
     () => (myAddress ? db.activity.get(myAddress.toLowerCase()) : undefined),
     [myAddress]
@@ -104,39 +108,51 @@ export default function HomeView(): ReactElement {
 
           {/* Activity Metrics & Rank Badge */}
           <div className="flex items-center gap-3 flex-wrap">
+            {/* Ladder progress — activity pts only, never MON */}
             {rank && activity && (
               <button
                 type="button"
                 data-testid="open-rank-ladder"
                 onClick={() => setShowRankModal(true)}
-                className="flex items-center gap-3 bg-[#1e183a]/80 hover:bg-[#1e183a] border border-[#836ef9]/30 p-2.5 rounded-2xl transition group text-left"
+                className="group flex items-center gap-3 rounded-2xl border border-[#836ef9]/30 bg-[#1e183a]/60 p-2.5 transition hover:border-[#836ef9]/50 hover:bg-[#1e183a] text-left"
                 title="Click to view rank progression ladder"
               >
-                <div className="flex flex-col items-start">
-                  <div className="flex items-center gap-2">
-                    <RankBadge rank={rank} size="sm" showLevel />
-                    <span
-                      className="inline-flex items-center gap-1 text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#f59e0b]/20 text-[#f59e0b] border border-[#f59e0b]/30"
-                      title="MON earned by chatting & staying online"
-                      data-testid="mon-balance"
-                    >
-                      <LucideCoins size={12} />
-                      {activity.points} MON
+                <RankBadge rank={rank} size="sm" showLevel />
+                <div className="w-36">
+                  <div className="flex items-center justify-between font-mono text-[9px] text-[#f4f1fe]/55 mb-1">
+                    <span className="font-bold text-[#f4f1fe]/80">
+                      {next ? `${next.emoji} ${next.name}` : "♛ Max Rank"}
                     </span>
+                    <span className="tabular-nums">{pct}%</span>
                   </div>
-                  <div className="mt-1.5 w-32">
-                    <div className="h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
-                      <div
-                        className="h-full rounded-full transition-all duration-300"
-                        style={{ background: rank.color, width: `${pct}%` }}
-                      />
-                    </div>
-                    <div className="text-[9px] text-[#f4f1fe]/50 text-right mt-0.5 font-mono">
-                      {next ? `${next.min - (activity.chatPoints + activity.presencePoints)} MON to ${next.emoji}` : "Max Rank ♛"}
-                    </div>
+                  <div className="h-1.5 rounded-full bg-black/40 overflow-hidden border border-white/5">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        background: `linear-gradient(90deg, ${rank.color}, ${next?.color ?? rank.color})`,
+                        width: `${pct}%`,
+                      }}
+                    />
+                  </div>
+                  <div className="mt-1 font-mono text-[9px] text-right text-[#f4f1fe]/45 tabular-nums">
+                    {next
+                      ? `${(next.min - (activity.chatPoints + activity.presencePoints)).toLocaleString()} pts to go`
+                      : "All 11 tiers unlocked"}
                   </div>
                 </div>
               </button>
+            )}
+
+            {/* Wallet MON balance — what you can spend in the shop */}
+            {address && (
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#f59e0b]/10 px-2.5 py-1.5 font-mono text-[11px] font-bold tabular-nums text-[#f59e0b] border border-[#f59e0b]/30"
+                title="Your wallet balance"
+                data-testid="mon-balance"
+              >
+                <LucideCoins size={12} />
+                {walletMon ?? "—"} MON
+              </span>
             )}
 
             <Link

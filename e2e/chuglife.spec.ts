@@ -62,9 +62,9 @@ test("chuglife shop renders room slot packs and custom flair", async ({ page }) 
   await page.goto("/shop");
   await expect(page.getByRole("heading", { name: "Chuglife Shop" })).toBeVisible();
   await expect(page.getByText("Room Pack: 5 rooms")).toBeVisible();
-  await expect(page.getByText("1,000 MON").first()).toBeVisible();
+  await expect(page.getByText("0.05 MON").first()).toBeVisible();
   await expect(page.getByText("Room Pack: 8 rooms")).toBeVisible();
-  await expect(page.getByText("1,500 MON").first()).toBeVisible();
+  await expect(page.getByText("0.09 MON").first()).toBeVisible();
   await expect(page.getByText("Turbo Vibes (1h)")).toBeVisible();
 });
 

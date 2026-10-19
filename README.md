@@ -11,9 +11,9 @@ Built with the cosmic neon aesthetic of [Chogathon](https://chogathon.chog.xyz) 
 ## 🌟 Key Features
 
 ### 1. 🐸 11-Tier Activity-Based Prestige Ladder
-Users earn progression points through real activity:
-- **+5 MON Points** for every message sent in chats and community rooms.
-- **+1 MON Point per minute** (60 points/hour) of active time online.
+Your rank reflects how active you are in the community:
+- **Chat activity** in chats and community rooms pushes you up the ladder.
+- **Time spent present** in the app boosts your standing too.
 
 | Level | Rank Name | Badge Theme | Hex Code | Prestige Aura |
 |:---:|:---|:---|:---:|:---|
@@ -48,22 +48,22 @@ An interactive **Rank Ladder Modal** allows users to inspect their current rank,
 ---
 
 ### 3. 🛍️ Chuglife Shop & Room Capacity
-To keep the network clean and prevent spam, each user is granted **1 free room creation slot**. Additional slots and custom flair can be unlocked in the **Chuglife Shop** using earned MON points:
-- **5-Room Pack**: 1,000 MON (Unlock 5 additional room creation slots).
-- **8-Room Pack**: 1,500 MON (Unlock 8 additional room creation slots).
-- **Turbo Vibes**: 300 MON (2x MON points earned for 24 hours).
-- **Chog Police Badge**: 400 MON (Exclusive moderator visual badge).
-- **Neon Name Glow**: 500 MON (Vibrant purple avatar ring in all chat rooms).
-- **Cosmic Neon Theme**: 800 MON (Unlock custom room backgrounds).
-- **Chog Reaction Pack**: 450 MON (Custom animated emoji reactions).
-- **Founder Wordmark**: 2,500 MON (Permanent badge next to your handle).
+To keep the network clean and prevent spam, each user is granted **1 free room creation slot**. Additional slots and custom flair can be purchased in the **Chuglife Shop**, paid straight from your connected wallet as a native MON transfer on Monad (set `VITE_SHOP_TREASURY` to receive payments):
+- **5-Room Pack**: 0.05 MON (Unlock 5 additional room creation slots).
+- **8-Room Pack**: 0.09 MON (Unlock 8 additional room creation slots).
+- **Turbo Vibes**: 0.02 MON (2x rank progress for 1 hour).
+- **Chog Police Badge**: 0.03 MON (Exclusive moderator visual badge).
+- **Neon Name Glow**: 0.03 MON (Vibrant purple avatar ring in all chat rooms).
+- **Cosmic Neon Theme**: 0.05 MON (Unlock custom room backgrounds).
+- **Chog Reaction Pack**: 0.03 MON (Custom animated emoji reactions).
+- **Founder Wordmark**: 0.15 MON (Permanent badge next to your handle).
 
 ---
 
 ### 4. ⚡ Monad & XMTP Seamless Wallet Sign-In
 - **Multi-Chain Wallet Connection**: Built with RainbowKit and Wagmi with support for **Monad Testnet (10143)** (`https://testnet-rpc.monad.xyz`), **Monad Mainnet (143)**, Ethereum Mainnet, and Sepolia.
 - **Non-blocking Signature Handshake**: Streamlined XMTP client onboarding with non-blocking floating status banners, automatic reconnection, and instant retry if a signature is declined.
-- **Demo Mode**: Instant zero-wallet access to explore full messaging, vibe matchmaking, rooms, ranking, and shop items with mock Chogs and XMTP messages.
+- **Demo Mode**: Instant zero-wallet access to explore full messaging, vibe matchmaking, rooms, ranking, and the shop catalog with mock Chogs and XMTP messages (wallet checkout needs a real wallet).
 
 ---
 

@@ -23,6 +23,9 @@
 }
 
 /* Chuglife base theme */
+html {
+  scroll-behavior: smooth;
+}
 body {
   background-color: #0e0b1a;
   color: #f4f1fe;
@@ -30,6 +33,11 @@ body {
   overflow-x: hidden;
   overscroll-behavior-y: contain;
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(131, 110, 249, 0.45);
+  color: #fff;
 }
 
 /* Native-app feel on touch devices */
@@ -135,5 +143,305 @@ a[data-navigation] {
 
   100% {
     transform: translateX(-100%);
+  }
+}
+
+/* ============================================================
+   Chuglife shared component layer — used across all screens
+   ============================================================ */
+@layer components {
+  /* Cards & surfaces */
+  .cl-card {
+    background: linear-gradient(180deg, rgba(26, 20, 51, 0.65) 0%, var(--card) 100%);
+    border: 1px solid var(--ln);
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  }
+  .cl-card-flat {
+    background: var(--card);
+    border: 1px solid var(--ln);
+    border-radius: 1.25rem;
+  }
+  .cl-card-glow {
+    position: relative;
+    overflow: hidden;
+  }
+  .cl-card-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120% 60% at 50% -10%, var(--p-subtle) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Buttons — consistent weight, press feedback */
+  .cl-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    border-radius: 9999px;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .cl-btn:active {
+    transform: scale(0.96);
+  }
+  .cl-btn:focus-visible {
+    outline: 2px solid var(--ps);
+    outline-offset: 2px;
+  }
+  .cl-btn-primary {
+    background: linear-gradient(135deg, var(--p) 0%, var(--ph) 100%);
+    color: #fff;
+    box-shadow: 0 6px 18px -6px var(--p-glow);
+  }
+  .cl-btn-primary:hover {
+    box-shadow: 0 10px 24px -6px var(--p-glow);
+  }
+  .cl-btn-ghost {
+    background: rgba(244, 241, 254, 0.06);
+    color: var(--tx);
+    border: 1px solid var(--ln);
+  }
+  .cl-btn-ghost:hover {
+    background: rgba(244, 241, 254, 0.1);
+    border-color: var(--ln-bright);
+  }
+  .cl-btn-sm {
+    padding: 0.45rem 0.95rem;
+    font-size: 0.75rem;
+  }
+  .cl-btn-md {
+    padding: 0.65rem 1.35rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Filter / category pills */
+  .cl-pill {
+    padding: 0.45rem 0.9rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--card);
+    color: rgba(244, 241, 254, 0.6);
+    border: 1px solid var(--ln);
+    transition: all 0.18s ease;
+    user-select: none;
+  }
+  .cl-pill:hover {
+    color: var(--tx);
+    border-color: var(--ln-bright);
+  }
+  .cl-pill[aria-pressed="true"] {
+    background: linear-gradient(135deg, var(--p) 0%, var(--ph) 100%);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 14px -4px var(--p-glow);
+  }
+
+  /* Text inputs */
+  .cl-input {
+    background: #161228;
+    border: 1px solid rgba(244, 241, 254, 0.12);
+    border-radius: 1rem;
+    color: var(--tx);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    touch-action: manipulation;
+  }
+  .cl-input::placeholder {
+    color: rgba(244, 241, 254, 0.38);
+  }
+  .cl-input:focus {
+    outline: none;
+    border-color: var(--p);
+    box-shadow: 0 0 0 3px rgba(131, 110, 249, 0.22);
+  }
+
+  /* Section heading above content blocks */
+  .cl-section-title {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(244, 241, 254, 0.45);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  /* Empty states */
+  .cl-empty {
+    background: var(--card);
+    border: 1px dashed rgba(169, 155, 252, 0.28);
+    border-radius: 1.5rem;
+    padding: 2.25rem 1.5rem;
+    text-align: center;
+  }
+
+  /* Ticker / meta strip */
+  .cl-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 0.75rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(244, 241, 254, 0.08);
+    font-size: 0.72rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: rgba(244, 241, 254, 0.75);
+  }
+}
+
+/* Entrance motion — staggered children via .cl-stagger > * */
+@keyframes cl-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.cl-fade-in {
+  animation: cl-fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.cl-stagger > * {
+  animation: cl-fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.cl-stagger > *:nth-child(1) { animation-delay: 0.03s; }
+.cl-stagger > *:nth-child(2) { animation-delay: 0.07s; }
+.cl-stagger > *:nth-child(3) { animation-delay: 0.11s; }
+.cl-stagger > *:nth-child(4) { animation-delay: 0.15s; }
+.cl-stagger > *:nth-child(5) { animation-delay: 0.19s; }
+.cl-stagger > *:nth-child(6) { animation-delay: 0.23s; }
+.cl-stagger > *:nth-child(7) { animation-delay: 0.27s; }
+.cl-stagger > *:nth-child(8) { animation-delay: 0.31s; }
+
+/* Skeleton shimmer */
+@keyframes cl-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.cl-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #161228;
+  border: 1px solid rgba(244, 241, 254, 0.06);
+}
+.cl-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(244, 241, 254, 0.07),
+    transparent
+  );
+  animation: cl-shimmer 1.4s infinite;
+}
+
+/* Gentle float for hero art */
+@keyframes cl-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.cl-float {
+  animation: cl-float 5s ease-in-out infinite;
+}
+
+/* Toast slide-down */
+@keyframes cl-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.cl-toast-in {
+  animation: cl-toast-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Success pop */
+@keyframes cl-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.cl-pop {
+  animation: cl-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Soft pulse ring for primary CTAs that need attention */
+@keyframes cl-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(131, 110, 249, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(131, 110, 249, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(131, 110, 249, 0);
+  }
+}
+.cl-pulse-ring {
+  animation: cl-pulse-ring 2.2s ease-out infinite;
+}
+
+/* Slow bounce for CTA arrows */
+@keyframes cl-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+.cl-nudge {
+  animation: cl-nudge 1.6s ease-in-out infinite;
+}
+
+/* Hide scrollbars on horizontal chip rails */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cl-fade-in,
+  .cl-stagger > *,
+  .cl-skeleton::after,
+  .cl-float,
+  .cl-toast-in,
+  .cl-pop,
+  .cl-pulse-ring,
+  .cl-nudge,
+  .chog-marquee > span {
+    animation: none !important;
   }
 }

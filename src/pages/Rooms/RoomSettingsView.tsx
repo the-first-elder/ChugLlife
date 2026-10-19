@@ -66,25 +66,29 @@ export default function RoomSettingsView(): ReactElement {
 
   if (!room) {
     return (
-      <div className="text-center py-24 text-chog-ink">
-        <p className="text-lg font-bold">Room not found.</p>
-        <Link to="/rooms" className="text-chog-pink underline text-sm">
-          back to rooms
-        </Link>
+      <div className="text-[#f4f1fe] max-w-2xl mx-auto p-4 pt-8 pb-28">
+        <div className="cl-empty">
+          <p className="text-lg font-bold text-[#f4f1fe]">Room not found.</p>
+          <Link to="/rooms" className="cl-btn cl-btn-ghost cl-btn-sm mt-4 text-[#836ef9]">
+            back to rooms
+          </Link>
+        </div>
       </div>
     );
   }
 
   if (room.owner !== me) {
     return (
-      <div className="text-center py-24 text-chog-ink">
-        <div className="text-4xl" aria-hidden>
-          🛡️
+      <div className="text-[#f4f1fe] max-w-2xl mx-auto p-4 pt-8 pb-28">
+        <div className="cl-empty">
+          <div className="text-4xl" aria-hidden>
+            🛡️
+          </div>
+          <p className="text-lg font-bold mt-3">Only the room owner sees the chog dashboard.</p>
+          <Link to="/rooms" className="cl-btn cl-btn-ghost cl-btn-sm mt-4 text-[#836ef9]">
+            back to rooms
+          </Link>
         </div>
-        <p className="text-lg font-bold mt-2">Only the room owner sees the chog dashboard.</p>
-        <Link to="/rooms" className="text-chog-pink underline text-sm">
-          back to rooms
-        </Link>
       </div>
     );
   }
@@ -167,56 +171,56 @@ export default function RoomSettingsView(): ReactElement {
 
   return (
     <div className="text-[#f4f1fe] max-w-4xl mx-auto p-4 pt-8 pb-28 min-h-[75vh]">
-      <div className="bg-[#161228] border border-[rgba(244,241,254,0.12)] rounded-3xl shadow-chog-lg p-6 sm:p-8">
+      <div className="cl-card p-6 sm:p-8">
         <div className="flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-white/10">
           <div>
-            <div className="flex items-center gap-2.5">
-              <span className="text-3xl p-2 rounded-2xl bg-[#141026] border border-white/5" aria-hidden>
+            <div className="flex items-center gap-3">
+              <span className="text-3xl w-12 h-12 rounded-2xl bg-[#141026] border border-white/5 flex items-center justify-center shrink-0" aria-hidden>
                 {room.emoji}
               </span>
               <div>
                 <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
                   {room.name} · Room Dashboard
                 </h1>
-                <p className="text-xs text-[#f4f1fe]/50 mt-0.5">{room.description || "Community Chat Room"}</p>
+                <p className="text-xs text-[#f4f1fe]/55 mt-1">{room.description || "Community Chat Room"}</p>
               </div>
             </div>
           </div>
           <Link
             to={`/c/${topic}`}
-            className="px-4 py-2 rounded-2xl bg-[#836ef9]/15 hover:bg-[#836ef9]/25 text-[#836ef9] border border-[#836ef9]/30 text-xs font-bold transition flex items-center gap-1.5"
+            className="cl-btn cl-btn-ghost cl-btn-sm text-[#836ef9]"
           >
             ← Back to Chat
           </Link>
         </div>
 
         {modError && (
-          <div className="p-3.5 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-200 text-xs mt-4">
+          <div className="p-3 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-200 text-xs mt-4">
             {modError}
           </div>
         )}
 
         {/* Members & Roles Section */}
         <section className="mt-6">
-          <div className="flex items-center justify-between">
-            <h2 className="font-bold text-sm text-[#f4f1fe] flex items-center gap-2 uppercase tracking-wider font-mono">
-              <LucideShield size={16} className="text-[#5ce68a]" /> Roster ({members.length + 1})
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <h2 className="cl-section-title flex items-center gap-2">
+              <LucideShield size={14} className="text-[#5ce68a]" /> Roster ({members.length + 1})
             </h2>
-            <span className="text-[11px] text-[#f4f1fe]/50">
+            <span className="text-[11px] text-[#f4f1fe]/55">
               Only Creator (Admin) & Chog Police can moderate
             </span>
           </div>
 
-          <ul className="mt-3 space-y-2" data-testid="room-roster">
+          <ul className="cl-stagger mt-4 space-y-2" data-testid="room-roster">
             {/* Owner entry */}
-            <li className="flex items-center justify-between bg-[#141026] border border-white/5 rounded-2xl px-4 py-3">
-              <div className="flex items-center gap-2">
+            <li className="cl-card-flat flex items-center justify-between gap-2 px-4 py-3">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-mono text-xs text-[#f4f1fe]">{me} (You)</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#f59e0b]/20 text-[#f59e0b] border border-[#f59e0b]/30 font-bold">
+                <span className="text-[10px] px-2 py-1 rounded-full bg-[#f59e0b]/20 text-[#f59e0b] border border-[#f59e0b]/30 font-bold">
                   👑 Owner & Admin
                 </span>
               </div>
-              <span className="text-[11px] text-[#f4f1fe]/40 font-mono">Supreme Boss</span>
+              <span className="text-[11px] text-[#f4f1fe]/55 font-mono">Supreme Boss</span>
             </li>
 
             {members.map((m) => {
@@ -226,7 +230,7 @@ export default function RoomSettingsView(): ReactElement {
               return (
                 <li
                   key={m}
-                  className="flex items-center justify-between bg-[#141026] border border-white/5 rounded-2xl px-4 py-3 flex-wrap gap-2"
+                  className="cl-card-flat flex items-center justify-between px-4 py-3 flex-wrap gap-2"
                   data-testid={`roster-${m}`}
                 >
                   <span className="font-mono text-xs text-[#f4f1fe]/90">{m}</span>
@@ -235,10 +239,10 @@ export default function RoomSettingsView(): ReactElement {
                       type="button"
                       data-testid={`police-${m}`}
                       onClick={() => void togglePolice(m, isPolice)}
-                      className={`text-xs px-3 py-1.5 rounded-xl font-bold border transition ${
+                      className={`cl-btn cl-btn-sm ${
                         isPolice
-                          ? "bg-[#14B8A6] text-white border-[#14B8A6] shadow-sm"
-                          : "border-white/10 text-[#f4f1fe]/70 hover:bg-white/5"
+                          ? "bg-[#14B8A6] text-white shadow-sm"
+                          : "bg-white/5 text-[#f4f1fe]/70 border border-white/10 hover:bg-white/10"
                       }`}
                     >
                       🛡️ {isPolice ? "Chog Police ✓" : "Make Chog Police"}
@@ -247,7 +251,7 @@ export default function RoomSettingsView(): ReactElement {
                       type="button"
                       data-testid={`ban-${m}`}
                       onClick={() => void doBan(m)}
-                      className="text-xs px-3 py-1.5 rounded-xl font-bold border border-red-500/30 text-red-400 hover:bg-red-500/10 transition"
+                      className="cl-btn cl-btn-sm bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20"
                     >
                       Ban User
                     </button>
@@ -258,19 +262,19 @@ export default function RoomSettingsView(): ReactElement {
           </ul>
 
           {/* Invite Input */}
-          <div className="mt-3 flex gap-2" data-testid="add-member-row">
+          <div className="mt-4 flex gap-2" data-testid="add-member-row">
             <input
               data-testid="add-member-input"
               value={addAddress}
               onChange={(e) => setAddAddress(e.target.value)}
-              className="grow border border-white/10 bg-[#141026] text-[#f4f1fe] p-2.5 rounded-2xl shadow-inner font-mono text-xs outline-none focus:border-[#836ef9] focus:ring-1 focus:ring-[#836ef9]"
+              className="cl-input grow p-3 font-mono text-xs"
               placeholder="0x… invite a chog by address"
             />
             <Button
               type="button"
               testId="add-member"
+              size="sm"
               onClick={() => void addMember()}
-              className="!px-4 !py-2 !rounded-2xl !bg-[#836ef9]"
             >
               Invite
             </Button>
@@ -278,23 +282,23 @@ export default function RoomSettingsView(): ReactElement {
 
           {/* Banned Users */}
           {(bans || []).length > 0 && (
-            <div className="mt-4 pt-4 border-t border-white/5" data-testid="bans-list">
-              <h3 className="text-xs font-bold text-red-300 font-mono uppercase tracking-wider">
+            <div className="mt-6 pt-4 border-t border-white/10" data-testid="bans-list">
+              <h3 className="cl-section-title text-red-300">
                 Banned troublemakers ({bans?.length})
               </h3>
-              <ul className="mt-2 space-y-1.5">
+              <ul className="mt-3 space-y-2">
                 {(bans || []).map((b) => (
                   <li
                     key={b.key}
-                    className="flex items-center justify-between bg-red-500/5 border border-red-500/15 rounded-xl px-3 py-2"
+                    className="flex items-center justify-between gap-2 bg-red-500/5 border border-red-500/15 rounded-2xl px-3 py-2"
                   >
-                    <span className="font-mono text-xs text-red-300 line-through">
+                    <span className="font-mono text-xs text-red-300 line-through truncate">
                       {b.address}
                     </span>
                     <button
                       type="button"
                       onClick={() => void doUnban(b.address)}
-                      className="text-xs underline text-[#5ce68a] hover:text-green-300"
+                      className="shrink-0 text-xs font-bold underline text-[#5ce68a] hover:text-green-300"
                     >
                       Forgive & Unban
                     </button>
@@ -307,30 +311,27 @@ export default function RoomSettingsView(): ReactElement {
 
         {/* Word Filter / Auto-Mod */}
         <section className="mt-8 border-t border-white/10 pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-bold text-sm text-[#f4f1fe] uppercase tracking-wider font-mono">
-                Muted Words Auto-Mod Filter
-              </h2>
-              <p className="text-xs text-[#f4f1fe]/50 mt-0.5">
-                Comma separated words. Messages from non-moderators containing these words will be blocked.
-              </p>
-            </div>
+          <div>
+            <h2 className="cl-section-title">Muted Words Auto-Mod Filter</h2>
+            <p className="text-xs text-[#f4f1fe]/55 mt-2">
+              Comma separated words. Messages from non-moderators containing these words will be blocked.
+            </p>
           </div>
-          <div className="flex gap-2 mt-3">
+          <div className="flex gap-2 mt-4">
             <input
               data-testid="muted-words"
               value={words}
               onChange={(e) => setWords(e.target.value)}
-              className="grow border border-white/10 bg-[#141026] text-[#f4f1fe] p-2.5 rounded-2xl shadow-inner text-xs outline-none focus:border-[#836ef9] focus:ring-1 focus:ring-[#836ef9]"
+              className="cl-input grow p-3 text-xs"
               placeholder="e.g. scam, rug, fake, drainer"
             />
             <Button
               type="button"
               testId="save-words"
+              size="sm"
               onClick={() => void saveWords()}
               disabled={savingWords}
-              className="!px-5 !py-2 !rounded-2xl !bg-[#5ce68a] !text-black font-bold"
+              className="!bg-[#5ce68a] !text-black"
             >
               {savingWords ? "Saving…" : "Save Filter"}
             </Button>
@@ -338,10 +339,10 @@ export default function RoomSettingsView(): ReactElement {
         </section>
 
         {/* Danger Zone */}
-        <section className="mt-8 border-t border-red-500/20 pt-6 flex items-center justify-between flex-wrap gap-4 bg-red-500/5 p-4 rounded-2xl border">
+        <section className="mt-8 rounded-2xl border border-red-500/25 bg-red-500/5 p-4 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h2 className="font-bold text-sm text-red-400 font-mono uppercase tracking-wider">Danger Zone</h2>
-            <p className="text-xs text-[#f4f1fe]/60 mt-0.5">
+            <h2 className="cl-section-title text-red-300">Danger Zone</h2>
+            <p className="text-xs text-[#f4f1fe]/55 mt-2">
               Permanently delete this room. Archives room and clears roles and bans.
             </p>
           </div>
@@ -349,10 +350,11 @@ export default function RoomSettingsView(): ReactElement {
             type="button"
             testId="delete-room"
             color="secondary"
+            size="sm"
             onClick={() => void doDelete()}
-            className="!bg-red-500 hover:!bg-red-600 !text-white !rounded-2xl !px-4"
+            className="!bg-red-500 hover:!bg-red-600 !text-white !border-red-500/50"
           >
-            <span className="flex items-center gap-1.5 font-bold">
+            <span className="flex items-center gap-2 font-bold">
               <LucideTrash size={14} />
               Delete Room
             </span>

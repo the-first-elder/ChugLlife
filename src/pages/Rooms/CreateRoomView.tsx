@@ -19,8 +19,11 @@ export default function CreateRoomView(): ReactElement {
 
   if (!client) {
     return (
-      <div className="text-center py-24">
-        <p className="text-lg font-bold text-chog-ink">Sign in first, chog.</p>
+      <div className="text-[#f4f1fe] max-w-lg mx-auto p-4 pt-8 pb-28">
+        <div className="cl-empty">
+          <span className="text-4xl block mb-3" aria-hidden>🔐</span>
+          <p className="text-lg font-bold text-[#f4f1fe]">Sign in first, chog.</p>
+        </div>
       </div>
     );
   }
@@ -50,21 +53,21 @@ export default function CreateRoomView(): ReactElement {
 
   return (
     <div className="text-[#f4f1fe] max-w-lg mx-auto p-4 pt-8 pb-28 min-h-[75vh]">
-      <div className="bg-[#161228] border border-[rgba(244,241,254,0.12)] rounded-3xl shadow-chog-lg p-6 sm:p-8 relative overflow-hidden">
+      <div className="cl-card cl-card-glow p-6 sm:p-8">
         <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#836ef9]/15 rounded-full blur-2xl pointer-events-none" />
 
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="bg-[#836ef9]/20 text-[#836ef9] p-2.5 rounded-2xl border border-[#836ef9]/30">
+          <div className="flex items-center gap-3">
+            <span className="bg-[#836ef9]/20 text-[#836ef9] p-3 rounded-2xl border border-[#836ef9]/30">
               <LucideSparkles size={22} />
             </span>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">Create a Chug Room</h1>
           </div>
-          <p className="text-xs text-[#f4f1fe]/60 leading-relaxed">
+          <p className="text-xs text-[#f4f1fe]/55 mt-4 leading-relaxed">
             You're the admin from second one. Assign chog police, filter banned words, ban troublemakers, and moderate your space.
           </p>
 
-          <form onSubmit={onSubmit} className="space-y-4 mt-6">
+          <form onSubmit={onSubmit} className="cl-stagger space-y-4 mt-6">
             <div>
               <label className="text-xs font-bold font-mono text-[#f4f1fe]/70 uppercase tracking-wider">Room Name</label>
               <input
@@ -72,7 +75,7 @@ export default function CreateRoomView(): ReactElement {
                 data-testid="room-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1 border border-white/10 bg-[#141026] text-[#f4f1fe] p-3 w-full rounded-2xl shadow-inner text-sm outline-none focus:border-[#836ef9] focus:ring-1 focus:ring-[#836ef9]"
+                className="cl-input mt-2 w-full p-3 text-sm"
                 placeholder="e.g. Monad Alpha Den"
                 maxLength={40}
               />
@@ -80,17 +83,14 @@ export default function CreateRoomView(): ReactElement {
 
             <div>
               <label className="text-xs font-bold font-mono text-[#f4f1fe]/70 uppercase tracking-wider">Room Badge Emoji</label>
-              <div className="flex gap-2 flex-wrap mt-1.5" data-testid="room-emoji-picker">
+              <div className="flex gap-2 flex-wrap mt-2" data-testid="room-emoji-picker">
                 {EMOJI_CHOICES.map((choice) => (
                   <button
                     key={choice}
                     type="button"
+                    aria-pressed={emoji === choice}
                     onClick={() => setEmoji(choice)}
-                    className={`text-xl p-2.5 rounded-2xl border transition ${
-                      emoji === choice
-                        ? "border-[#836ef9] bg-[#836ef9]/20 shadow-chog-sm"
-                        : "border-white/10 bg-[#141026] hover:bg-white/5"
-                    }`}
+                    className="cl-pill text-lg"
                   >
                     {choice}
                   </button>
@@ -100,12 +100,12 @@ export default function CreateRoomView(): ReactElement {
 
             <div>
               <label className="text-xs font-bold font-mono text-[#f4f1fe]/70 uppercase tracking-wider">
-                Description <span className="text-white/30 lowercase">(optional)</span>
+                Description <span className="text-[#f4f1fe]/40 lowercase">(optional)</span>
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="mt-1 border border-white/10 bg-[#141026] text-[#f4f1fe] p-3 w-full rounded-2xl shadow-inner text-sm outline-none focus:border-[#836ef9] focus:ring-1 focus:ring-[#836ef9]"
+                className="cl-input mt-2 w-full p-3 text-sm"
                 placeholder="What vibes belong in this room?"
                 rows={2}
                 maxLength={140}
@@ -115,7 +115,7 @@ export default function CreateRoomView(): ReactElement {
             {error && (
               <div
                 data-testid="create-room-error"
-                className="p-3.5 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-200 text-xs flex flex-col gap-1.5"
+                className="p-3 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-200 text-xs flex flex-col gap-2"
               >
                 <span>{error}</span>
                 {error.includes("cap reached") && (
@@ -130,7 +130,7 @@ export default function CreateRoomView(): ReactElement {
             )}
 
             <div className="pt-2 flex justify-center">
-              <Button type="submit" disabled={loading} className="!w-full !py-3 !rounded-2xl !bg-[#836ef9] hover:!bg-[#9d8dfc]">
+              <Button type="submit" disabled={loading} className="w-full py-3 text-sm">
                 <span className="flex items-center justify-center gap-2 font-bold text-sm">
                   {loading ? "Summoning the room…" : "Open the Doors 🚪"}
                 </span>

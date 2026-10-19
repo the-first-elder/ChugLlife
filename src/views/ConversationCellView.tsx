@@ -30,7 +30,7 @@ export default function ConversationCellView({
 
   return (
     <div
-      className={`group flex items-center gap-3 px-3.5 py-3 rounded-2xl transition-all duration-200 cursor-pointer active:scale-[0.985] ${
+      className={`group flex items-center gap-3.5 px-4 py-3 rounded-2xl transition cursor-pointer active:scale-[0.98] ${
         active
           ? "bg-[#836ef9]/15 ring-1 ring-[#836ef9]/60"
           : "bg-[#161228]/70 hover:bg-[#1e183a] ring-1 ring-transparent"
@@ -49,7 +49,7 @@ export default function ConversationCellView({
           {avatarLabel(conversation)}
         </span>
         <span
-          className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-lg flex items-center justify-center border-2 border-[#12101f] ${
+          className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#12101f] ${
             room ? "bg-[#836ef9]" : "bg-[#3a3358]"
           }`}
         >
@@ -63,7 +63,7 @@ export default function ConversationCellView({
 
       {/* content */}
       <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-baseline justify-between gap-2">
           <span
             className={`text-sm font-bold truncate ${
               active ? "text-[#f4f1fe]" : "text-[#f4f1fe]/90"
@@ -74,16 +74,16 @@ export default function ConversationCellView({
               : shortAddress(conversation.peerAddress)}
           </span>
           <span
-            className={`text-[10px] font-mono shrink-0 ${
-              active ? "text-[#a99bfc]" : "text-[#f4f1fe]/40"
+            className={`text-[11px] font-mono tabular-nums shrink-0 ${
+              active ? "text-[#a99bfc]" : "text-[#f4f1fe]/45"
             }`}
           >
             <ReactTimeAgo date={conversation.updatedAt} />
           </span>
         </div>
         <p
-          className={`text-xs mt-0.5 truncate ${
-            active ? "text-[#f4f1fe]/80" : "text-[#f4f1fe]/55"
+          className={`text-[13px] leading-snug mt-0.5 truncate ${
+            active ? "text-[#f4f1fe]/75" : "text-[#f4f1fe]/55"
           }`}
         >
           {latestMessage ? (

@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from "react";
+import { Fragment, ReactElement, useEffect, useState } from "react";
 import { Conversation, Message } from "../model/db";
 import { useMessages } from "../hooks/useMessages";
 import MessageComposerView from "./MessageComposerView";
@@ -16,6 +16,22 @@ const appearsInMessageList = (message: Message): boolean => {
   const type = (message.contentType as { typeId?: string }).typeId;
   return type !== "reaction" && type !== "unknown";
 };
+
+const dayKey = (date: Date): string => new Date(date).toDateString();
+
+function formatDayLabel(date: Date): string {
+  const d = new Date(date);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  if (dayKey(d) === dayKey(today)) return "Today";
+  if (dayKey(d) === dayKey(yesterday)) return "Yesterday";
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    ...(d.getFullYear() === today.getFullYear() ? {} : { year: "numeric" }),
+  });
+}
 
 export default function ConversationView({
   conversation,
@@ -37,12 +53,12 @@ export default function ConversationView({
   return (
     <section className="flex flex-row bg-[#0e0b1a] text-[#f4f1fe] min-h-[calc(100vh-65px)]">
       {/* Desktop Sidebar */}
-      <div className="hidden md:block w-full max-w-xs p-3 space-y-3 bg-[#141026] border-r border-[rgba(244,241,254,0.08)]">
-        <div className="font-extrabold text-base py-1 text-[#f4f1fe] flex items-center justify-between">
-          <span>Chogmates</span>
+      <div className="hidden md:block w-full max-w-xs p-4 space-y-3 bg-[#141026] border-r border-[rgba(244,241,254,0.08)]">
+        <div className="flex items-center justify-between gap-2 py-1">
+          <span className="cl-section-title">Chogmates</span>
           <Link
             to="/match"
-            className="inline-flex items-center gap-1 text-xs bg-[#836ef9] text-white px-2.5 py-1 rounded-xl hover:bg-[#9d8dfc] transition font-bold shadow-sm"
+            className="cl-btn cl-btn-primary cl-btn-sm"
           >
             <LucideMessageSquarePlus size={13} /> Match
           </Link>
@@ -53,14 +69,17 @@ export default function ConversationView({
       {/* Main Chat Area */}
       <div className="flex flex-col w-full h-[calc(100vh-65px)] bg-[#0e0b1a]">
         <header className="sticky top-0 z-40 px-4 py-3 bg-[#141026]/90 backdrop-blur-xl border-b border-[rgba(244,241,254,0.08)]">
-          <div className="flex justify-between items-center font-bold">
-            <Link to="/conversations" className="mr-3 md:hidden p-1.5 rounded-xl hover:bg-white/5 text-[#f4f1fe]/70 hover:text-white">
+          <div className="flex justify-between items-center gap-2 font-bold">
+            <Link
+              to="/conversations"
+              className="cl-btn cl-btn-ghost p-2 mr-2 md:hidden shrink-0 text-[#f4f1fe]/70 hover:text-[#f4f1fe]"
+            >
               <LucideArrowLeft size={18} />
             </Link>
 
             <div className="flex-grow flex items-center gap-x-3 overflow-hidden">
               {isRoom ? (
-                <div className="w-10 h-10 rounded-2xl bg-[#836ef9]/20 border border-[#836ef9]/40 flex items-center justify-center text-xl shadow-sm shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-[#836ef9]/20 border border-[#836ef9]/40 flex items-center justify-center text-xl shrink-0">
                   {room?.emoji || "🐸"}
                 </div>
               ) : (
@@ -76,7 +95,7 @@ export default function ConversationView({
                     : "Chogmate"}
                 </span>
 
-                <span className="text-[10px] text-[#f4f1fe]/50 font-normal flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] text-[#f4f1fe]/55 font-normal flex items-center gap-1.5 flex-wrap">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#5ce68a] inline-block shadow-[0_0_6px_#5ce68a]" />
                   {isRoom ? (
                     <span className="text-[#5ce68a] font-mono font-bold">
@@ -89,7 +108,7 @@ export default function ConversationView({
                   {isRoom && (
                     <Link
                       to={`/room/${conversation.topic}/settings`}
-                      className="inline-flex items-center gap-1 text-[10px] font-bold text-[#836ef9] hover:underline bg-[#836ef9]/10 px-2 py-0.5 rounded-md border border-[#836ef9]/30"
+                      className="inline-flex items-center gap-1 text-[10px] font-bold text-[#a99bfc] hover:text-[#f4f1fe] bg-[#836ef9]/10 px-2 py-0.5 rounded-lg border border-[#836ef9]/30 transition-colors"
                       data-testid="room-dashboard"
                     >
                       Room Dashboard ⚙️
@@ -101,7 +120,7 @@ export default function ConversationView({
                       href={`https://monadscan.com/nft/${CHOG_NFT_ADDRESS}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="underline hidden sm:inline text-[#836ef9] ml-1"
+                      className="underline hidden sm:inline text-[#836ef9] hover:text-[#a99bfc] ml-1 transition-colors"
                     >
                       view on MonadScan
                     </a>
@@ -112,7 +131,7 @@ export default function ConversationView({
 
             <button
               data-testid="conversation-info"
-              className="p-2 rounded-xl text-[#f4f1fe]/60 hover:text-white hover:bg-white/5 transition"
+              className="cl-btn cl-btn-ghost p-2 shrink-0 text-[#f4f1fe]/60 hover:text-[#f4f1fe]"
               onClick={() => setIsShowingSettings(!isShowingSettings)}
               title="Conversation Settings"
             >
@@ -128,26 +147,40 @@ export default function ConversationView({
           )}
         </header>
 
-        <div className="flex-1 grow shrink-0 flex flex-col space-y-2.5 px-4 py-3 overflow-y-auto" data-testid="message-list">
+        <div
+          className="cl-stagger flex-1 grow shrink-0 flex flex-col space-y-2.5 px-4 py-4 overflow-y-auto"
+          data-testid="message-list"
+        >
           {messages?.length === 0 && (
-            <div className="h-[calc(100vh-260px)] w-full flex flex-col justify-center items-center overflow-hidden text-center">
-              <span className="text-5xl block mb-3 animate-bounce">🐸</span>
+            <div className="cl-empty cl-fade-in my-auto w-full max-w-sm self-center flex flex-col items-center">
+              <span className="text-4xl block mb-3">🐸</span>
               <p className="text-base font-bold text-[#f4f1fe]">
                 {isRoom ? "Welcome to the room!" : "Your chogmate conversation"}
               </p>
-              <p className="text-xs text-[#f4f1fe]/50 mt-1 max-w-xs">
+              <p className="text-xs text-[#f4f1fe]/55 mt-1 max-w-xs">
                 {isRoom
-                  ? "Say gm! Every message earns +5 MON toward your activity rank."
+                  ? "Say gm! Chatting in here pushes you up the rank ladder."
                   : "Say gm to start vibing. Messages are encrypted end-to-end."}
               </p>
             </div>
           )}
           {messages
-            ? messages.filter(appearsInMessageList).map((message) => (
-                <MessageCellView key={message.id} message={message} />
-              ))
+            ? messages.filter(appearsInMessageList).map((message, index, list) => {
+                const prev = list[index - 1];
+                const newDay = !prev || dayKey(prev.sentAt) !== dayKey(message.sentAt);
+                return (
+                  <Fragment key={message.id}>
+                    {newDay && (
+                      <span className="cl-chip self-center my-1">
+                        {formatDayLabel(message.sentAt)}
+                      </span>
+                    )}
+                    <MessageCellView message={message} />
+                  </Fragment>
+                );
+              })
             : (
-              <span className="text-[#f4f1fe]/50 text-center py-6">Could not load messages</span>
+              <span className="text-[#f4f1fe]/55 text-sm text-center py-6">Could not load messages</span>
             )}
         </div>
 

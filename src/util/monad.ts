@@ -1,4 +1,10 @@
-import { createPublicClient, http, Address, defineChain } from "viem";
+import {
+  createPublicClient,
+  http,
+  Address,
+  defineChain,
+  isAddress,
+} from "viem";
 
 export const monadTestnet = defineChain({
   id: 10143,
@@ -51,6 +57,16 @@ export const CHOG_NFT_ADDRESS: Address =
 /** $CHOG token on Monad (optional bonus feature: tipping matches). */
 export const CHOG_TOKEN_ADDRESS: Address =
   "0x350035555E10d9AfAF1566AaebfCeD5BA6C27777";
+
+/**
+ * Shop payments are real native-MON transfers to this address
+ * (`VITE_SHOP_TREASURY` in .env). Undefined → checkout is disabled.
+ */
+export function shopTreasury(): Address | undefined {
+  const raw = (import.meta as { env?: Record<string, string> }).env
+    ?.VITE_SHOP_TREASURY?.trim();
+  return raw && isAddress(raw, { strict: false }) ? (raw as Address) : undefined;
+}
 
 export const IPFS_GATEWAYS = [
   "https://ipfs.filebase.io/ipfs/",

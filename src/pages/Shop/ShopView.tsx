@@ -1,12 +1,17 @@
-import { ReactElement, useState } from "react";
+import { ReactElement, useState, useEffect } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useClient } from "../../hooks/useClient";
+import { useClientStatus } from "../../hooks/useClient";
 import db from "../../model/db";
 import { clientAddress } from "../../model/conversations";
+import { getActivity } from "../../model/activity";
 import { rankProgress } from "../../model/rank";
 import RankBadge from "../../components/RankBadge";
 import RankLadderModal from "../../components/RankLadderModal";
-import { SHOP_ITEMS, ShopItem, applyPurchase } from "../../model/shop";
+import { SHOP_ITEMS, ShopItem, ShopItemId, applyPurchase } from "../../model/shop";
+import { monad, monadPublicClient, shopTreasury } from "../../util/monad";
+import { useAccount, useBalance, useSendTransaction, useSwitchChain } from "wagmi";
+import { parseEther } from "viem";
 import {
   LucideRocket,
   LucideSparkles,
@@ -16,14 +21,55 @@ import {
   LucideClock,
   LucideShieldCheck,
   LucideCheck,
+  LucideTrendingUp,
 } from "lucide-react";
+
+function useTurboCountdown(activeUntil?: number): string {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    if (!activeUntil || activeUntil <= now) return;
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [activeUntil, now]);
+  if (!activeUntil || activeUntil <= now) return "";
+  const ms = activeUntil - now;
+  const m = Math.floor(ms / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+function checkoutError(e: unknown): string {
+  const msg = e instanceof Error ? e.message : String(e);
+  if (/user rejected|rejected the request|user denied/i.test(msg)) {
+    return "Payment cancelled — no MON left your wallet.";
+  }
+  if (/insufficient funds|exceeds balance|balance too low/i.test(msg)) {
+    return "Not enough MON in your wallet to cover this item plus gas.";
+  }
+  if (/chain|mismatch/i.test(msg)) {
+    return "Checkout runs on Monad — switch your wallet to Monad and try again.";
+  }
+  if (/memory access out of bounds|RuntimeError|unreachable/i.test(msg)) {
+    return "Chuglife jammed for a second. Reload the page and try again.";
+  }
+  return msg.slice(0, 220);
+}
 
 export default function ShopView(): ReactElement {
   const client = useClient();
+  const { isDemo } = useClientStatus();
   const address = client ? clientAddress(client) : "";
   const [filter, setFilter] = useState<"all" | "capacity" | "powerup" | "cosmetic">("all");
   const [showRankModal, setShowRankModal] = useState(false);
   const [justBought, setJustBought] = useState<string | null>(null);
+  const [pendingItem, setPendingItem] = useState<ShopItemId | null>(null);
+  const [checkoutMsg, setCheckoutMsg] = useState<string | undefined>();
+
+  const treasury = shopTreasury();
+  const { address: walletAddress, chainId } = useAccount();
+  const { data: balance, refetch: refetchBalance } = useBalance({ address: walletAddress });
+  const { switchChainAsync } = useSwitchChain();
+  const { sendTransactionAsync, isPending } = useSendTransaction();
 
   const activity = useLiveQuery(
     () => (address ? db.activity.get(address) : undefined),
@@ -41,15 +87,40 @@ export default function ShopView(): ReactElement {
     : { rank: undefined, pct: 0, next: undefined };
 
   const isTurboActive = activity?.turboUntil && activity.turboUntil > Date.now();
+  const turboLeft = useTurboCountdown(isTurboActive ? activity?.turboUntil : undefined);
+
+  const hasWallet = !!walletAddress && !isDemo;
+  const busy = pendingItem !== null || isPending;
+  const walletMon = balance
+    ? Number(balance.formatted).toLocaleString(undefined, { maximumFractionDigits: 4 })
+    : undefined;
 
   async function buy(item: ShopItem) {
-    if (!client || !activity) return;
+    if (!walletAddress || !treasury || busy) return;
+    setPendingItem(item.id);
+    setCheckoutMsg(undefined);
     try {
-      await applyPurchase(activity, item);
+      const value = parseEther(item.price);
+      if (balance && balance.value < value) {
+        throw new Error(`Not enough MON — this item costs ${item.price} MON.`);
+      }
+      if (chainId !== monad.id) {
+        await switchChainAsync({ chainId: monad.id });
+      }
+      const hash = await sendTransactionAsync({ to: treasury, value });
+      setCheckoutMsg(`Confirming on Monad…`);
+      await monadPublicClient.waitForTransactionReceipt({ hash });
+
+      const row = await getActivity(address || walletAddress);
+      await applyPurchase(row, item);
       setJustBought(item.name);
-      setTimeout(() => setJustBought(null), 3000);
+      setCheckoutMsg(undefined);
+      void refetchBalance();
+      setTimeout(() => setJustBought(null), 5000);
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e));
+      setCheckoutMsg(checkoutError(e));
+    } finally {
+      setPendingItem(null);
     }
   }
 
@@ -58,12 +129,12 @@ export default function ShopView(): ReactElement {
   return (
     <div className="text-[#f4f1fe] max-w-5xl mx-auto p-4 pt-8 pb-28 min-h-[75vh]">
       {/* Top Banner */}
-      <div className="bg-[#161228] border border-[rgba(244,241,254,0.12)] rounded-3xl p-6 sm:p-8 shadow-chog-lg relative overflow-hidden">
+      <div className="cl-card cl-card-glow cl-fade-in p-6 sm:p-8">
         <div className="absolute -top-16 -right-16 w-56 h-56 bg-[#f59e0b]/15 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="flex items-start justify-between flex-wrap gap-4 relative z-10">
+        <div className="relative z-10 flex items-start justify-between flex-wrap gap-6">
           <div>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-3">
               <span className="w-10 h-10 rounded-2xl bg-[#f59e0b]/20 border border-[#f59e0b]/40 text-[#f59e0b] flex items-center justify-center shadow-sm">
                 <LucideCoins size={22} />
               </span>
@@ -71,53 +142,97 @@ export default function ShopView(): ReactElement {
                 Chuglife Shop
               </h1>
             </div>
-            <p className="text-xs sm:text-sm text-[#f4f1fe]/60 mt-2 max-w-xl leading-relaxed">
-              Spend MON earned by chatting (+5 MON/msg) and staying active (+1 MON/min online). Upgrade room capacity, boost earnings, and unlock cosmetic flair.
+            <p className="text-xs sm:text-sm text-[#f4f1fe]/55 mt-3 max-w-xl leading-relaxed">
+              Room slots, power-ups and cosmetic flair — paid straight from your
+              wallet in MON. Items unlock the moment your transfer lands.
             </p>
           </div>
 
-          <div className="bg-[#141026] border border-[#f59e0b]/30 rounded-3xl px-6 py-4 shadow-chog text-right">
-            <div className="font-mono font-extrabold text-2xl text-[#f59e0b] flex items-center gap-2 justify-end">
-              <LucideCoins size={20} />
-              {activity?.points ?? 0} MON
+          {/* Wallet balance — what you can actually spend */}
+          <div className="cl-card-flat px-6 py-4 text-right min-w-[200px]">
+            <div className="cl-section-title">Your wallet</div>
+            <div className="mt-2 flex items-center justify-end gap-2 text-[#f59e0b]">
+              <LucideCoins size={26} className="shrink-0" />
+              <span className="text-4xl font-extrabold leading-none tabular-nums">
+                {walletMon ?? "—"}
+              </span>
+              <span className="text-sm font-bold opacity-80">MON</span>
             </div>
-            <div className="text-[11px] text-[#f4f1fe]/50 font-mono mt-0.5">
-              your available balance
+            <div className="mt-2 font-mono text-[11px] text-[#f4f1fe]/55">
+              {hasWallet
+                ? "spendable in this shop"
+                : "connect a wallet to unlock checkout"}
             </div>
             {isTurboActive && (
-              <div className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#f59e0b]/20 text-[#f59e0b] text-[10px] font-bold border border-[#f59e0b]/40 animate-pulse">
-                🚀 2x Turbo Active
+              <div className="cl-chip mt-3 border-[#f59e0b]/40 bg-[#f59e0b]/15 text-[#f59e0b]">
+                🚀 Turbo active
+                {turboLeft && (
+                  <span className="font-mono font-bold tabular-nums">
+                    {" "}
+                    · {turboLeft}
+                  </span>
+                )}
               </div>
             )}
           </div>
         </div>
 
-        {/* Earning guide ticker */}
-        <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between flex-wrap gap-3 text-xs font-mono text-[#f4f1fe]/70">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 bg-black/30 px-3 py-1 rounded-xl border border-white/5">
-              <LucideFlame size={14} className="text-[#f59e0b]" /> <strong>+5 MON</strong> per message
+        {/* Shop info ticker */}
+        <div className="relative z-10 mt-6 flex items-center justify-between flex-wrap gap-3 border-t border-white/10 pt-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="cl-chip">
+              <LucideFlame size={14} className="text-[#f59e0b]" />
+              <strong>Turbo</strong> 2x rank progress
             </span>
-            <span className="flex items-center gap-1.5 bg-black/30 px-3 py-1 rounded-xl border border-white/5">
-              <LucideClock size={14} className="text-[#5ce68a]" /> <strong>+1 MON</strong> per min online
+            <span className="cl-chip">
+              <LucideClock size={14} className="text-[#5ce68a]" />
+              <strong>8</strong> items to unlock
             </span>
           </div>
 
-          <span className="text-[11px] text-[#5ce68a] flex items-center gap-1">
-            <LucideShieldCheck size={13} /> 100% Free · No Gas · Earn by Vibe
+          <span className="cl-chip text-[#5ce68a]">
+            <LucideShieldCheck size={13} /> Paid in MON · settles on Monad
           </span>
         </div>
+
+        {!treasury && (
+          <p className="relative z-10 mt-3 font-mono text-[11px] text-[#f59e0b]/80">
+            Checkout offline: set VITE_SHOP_TREASURY in .env to accept payments.
+          </p>
+        )}
       </div>
 
+      {checkoutMsg && (
+        <div
+          role="status"
+          data-testid="shop-checkout-status"
+          className="cl-toast-in mt-4 flex items-center gap-3 rounded-2xl border border-[#836ef9]/40 bg-[#836ef9]/10 px-4 py-3"
+        >
+          <span
+            aria-hidden
+            className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[#836ef9]/30 border-t-[#836ef9]"
+          />
+          <p className="text-sm text-[#f4f1fe]/80">{checkoutMsg}</p>
+        </div>
+      )}
+
       {justBought && (
-        <div className="my-4 p-3.5 rounded-2xl bg-[#5ce68a]/15 border border-[#5ce68a]/40 text-[#5ce68a] text-sm flex items-center gap-2 animate-in fade-in">
-          <LucideCheck size={18} />
-          <span>Unlocked <strong>{justBought}</strong>! Enjoy the vibes.</span>
+        <div
+          role="status"
+          className="cl-toast-in mt-4 flex items-center gap-3 rounded-2xl border border-[#5ce68a]/40 bg-[#5ce68a]/10 px-4 py-3"
+        >
+          <span className="cl-pop flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#5ce68a]/15 text-[#5ce68a]">
+            <LucideCheck size={16} />
+          </span>
+          <p className="text-sm text-[#f4f1fe]/80">
+            Unlocked <strong className="text-[#5ce68a]">{justBought}</strong>!
+            Enjoy the vibes.
+          </p>
         </div>
       )}
 
       {/* Category Filter Pills */}
-      <div className="mt-8 flex gap-2 flex-wrap font-mono text-xs">
+      <div className="mt-8 flex flex-wrap gap-2">
         {[
           { id: "all", label: "All Items" },
           { id: "capacity", label: "🏘️ Room Capacity" },
@@ -126,12 +241,10 @@ export default function ShopView(): ReactElement {
         ].map((c) => (
           <button
             key={c.id}
+            type="button"
+            aria-pressed={filter === c.id}
             onClick={() => setFilter(c.id as never)}
-            className={`px-3.5 py-1.5 rounded-2xl transition font-bold ${
-              filter === c.id
-                ? "bg-[#836ef9] text-white shadow-chog-sm"
-                : "bg-[#161228] border border-white/5 text-[#f4f1fe]/60 hover:text-white"
-            }`}
+            className="cl-pill"
           >
             {c.label}
           </button>
@@ -139,52 +252,83 @@ export default function ShopView(): ReactElement {
       </div>
 
       {/* Items Grid */}
-      <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="mt-8 flex items-center justify-between">
+        <h2 className="cl-section-title">Shop Catalog</h2>
+        <span className="font-mono text-[11px] text-[#f4f1fe]/55">
+          {items.length} {items.length === 1 ? "item" : "items"}
+        </span>
+      </div>
+      <div className="cl-stagger mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((item) => {
-          const affordable = (activity?.points ?? 0) >= item.price;
+          const value = parseEther(item.price);
+          const canAfford = !balance || balance.value >= value;
           const isOwned =
             (item.id === "rooms-5" && (activity?.roomSlots ?? 1) >= 5) ||
             (item.id === "rooms-8" && (activity?.roomSlots ?? 1) >= 8);
+          const paying = pendingItem === item.id;
+
+          let label = `Buy for ${item.price} MON`;
+          if (!treasury) label = "Checkout offline";
+          else if (!hasWallet) label = "Connect wallet to buy";
+          else if (paying || (busy && !paying)) label = paying ? "Sending MON…" : "Confirming…";
+          else if (!canAfford) label = `Need ${item.price} MON`;
+
+          const disabled = !treasury || !hasWallet || busy || !canAfford;
 
           return (
             <div
               key={item.id}
               data-testid={`shop-${item.id}`}
-              className="bg-[#161228] hover:bg-[#1a1433] border border-[rgba(244,241,254,0.1)] rounded-3xl p-5 flex flex-col justify-between shadow-sm transition duration-200"
+              className="cl-card-flat hover:border-[#836ef9]/50 transition duration-200 p-4 flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-start justify-between">
-                  <span className="text-3xl p-2.5 rounded-2xl bg-[#141026] border border-white/5" aria-hidden>
+                <div className="flex items-start justify-between gap-2">
+                  <span className="w-12 h-12 text-2xl rounded-2xl bg-[#141026] border border-white/5 flex items-center justify-center" aria-hidden>
                     {item.emoji}
                   </span>
-                  <span className="font-mono font-extrabold text-sm text-[#f59e0b] bg-[#f59e0b]/15 px-2.5 py-1 rounded-xl border border-[#f59e0b]/30">
-                    {item.price.toLocaleString()} MON
+                  <span className="cl-chip bg-[#f59e0b]/10 border-[#f59e0b]/30 text-[#f59e0b] font-bold tabular-nums">
+                    {item.price} MON
                   </span>
                 </div>
-                <h2 className="font-extrabold text-base text-[#f4f1fe] mt-3">{item.name}</h2>
-                <p className="text-xs text-[#f4f1fe]/60 mt-1.5 leading-relaxed">{item.blurb}</p>
+                <h3 className="font-bold text-[15px] text-[#f4f1fe] mt-4">{item.name}</h3>
+                <p className="text-xs text-[#f4f1fe]/55 mt-2 leading-relaxed">{item.blurb}</p>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-white/5">
+              <div className="mt-4 pt-3 border-t border-white/10">
                 {isOwned ? (
                   <div className="text-center text-xs font-bold text-[#5ce68a] py-2 bg-[#5ce68a]/10 rounded-2xl border border-[#5ce68a]/20">
                     ✓ Already Unlocked
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    data-testid={`buy-${item.id}`}
-                    disabled={!affordable}
-                    onClick={() => void buy(item)}
-                    className={`w-full py-2.5 px-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 transition ${
-                      affordable
-                        ? "bg-[#836ef9] hover:bg-[#9d8dfc] text-white shadow-chog-sm cursor-pointer"
-                        : "bg-white/5 text-[#f4f1fe]/30 cursor-not-allowed border border-white/5"
-                    }`}
-                  >
-                    <LucideSparkles size={14} />
-                    {affordable ? "Buy Item" : `Need ${item.price.toLocaleString()} MON`}
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      type="button"
+                      data-testid={`buy-${item.id}`}
+                      disabled={disabled}
+                      onClick={() => void buy(item)}
+                      className={`cl-btn cl-btn-sm w-full ${
+                        disabled
+                          ? "bg-white/5 text-[#f4f1fe]/40 border border-white/10 cursor-not-allowed"
+                          : "cl-btn-primary"
+                      }`}
+                    >
+                      {paying ? (
+                        <span
+                          aria-hidden
+                          className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+                        />
+                      ) : (
+                        <LucideSparkles size={14} />
+                      )}
+                      {label}
+                    </button>
+                    {!canAfford && hasWallet && (
+                      <p className="flex items-center justify-center gap-1 text-[10px] text-[#f4f1fe]/45">
+                        <LucideTrendingUp size={11} className="text-[#836ef9]" />
+                        Top up your wallet to grab this one
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -193,40 +337,43 @@ export default function ShopView(): ReactElement {
       </div>
 
       {/* Room Capacity Status */}
-      <div className="mt-8 bg-[#161228] border border-[rgba(244,241,254,0.1)] rounded-3xl p-6 shadow-sm flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#836ef9]/20 text-[#836ef9] flex items-center justify-center text-xl shrink-0">
-            <LucideWallet size={20} />
-          </div>
-          <div>
-            <div className="font-bold text-sm text-[#f4f1fe]">
-              Room Capacity: {ownedRooms ?? 0} / {activity?.roomSlots ?? 1} created
+      <section className="cl-card mt-8 p-6">
+        <div className="flex items-start justify-between flex-wrap gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#836ef9]/20 text-[#836ef9] flex items-center justify-center shrink-0">
+              <LucideWallet size={20} />
             </div>
-            <div className="text-xs text-[#f4f1fe]/50 mt-0.5">
-              Every chog holder gets 1 room free. Buy 5-room or 8-room packs above to expand your chat territory.
+            <div>
+              <div className="cl-section-title">Room Capacity</div>
+              <div className="mt-2 font-bold text-sm text-[#f4f1fe]">
+                {ownedRooms ?? 0} / {activity?.roomSlots ?? 1} rooms created
+              </div>
+              <p className="mt-2 max-w-md text-xs text-[#f4f1fe]/55 leading-relaxed">
+                Every chog holder gets 1 room free. Buy 5-room or 8-room packs above to expand your chat territory.
+              </p>
             </div>
           </div>
-        </div>
 
-        <a
-          href="/rooms/new"
-          className="px-4 py-2 rounded-2xl bg-white/5 hover:bg-white/10 text-xs font-bold font-mono border border-white/10 transition"
-        >
-          Create Room →
-        </a>
-      </div>
+          <a
+            href="/rooms/new"
+            className="cl-btn cl-btn-ghost cl-btn-sm"
+          >
+            Create Room →
+          </a>
+        </div>
+      </section>
 
       {/* User Rank Progress */}
-      <div className="mt-4 bg-[#161228] border border-[rgba(244,241,254,0.1)] rounded-3xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2 font-bold text-sm">
-            <LucideRocket size={18} className="text-[#836ef9]" />
+      <section className="cl-card mt-4 p-6">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div className="cl-section-title flex items-center gap-2">
+            <LucideRocket size={14} className="text-[#836ef9]" />
             Your Activity Rank
           </div>
           <button
             type="button"
             onClick={() => setShowRankModal(true)}
-            className="text-xs text-[#836ef9] font-mono hover:underline"
+            className="cl-btn cl-btn-ghost cl-btn-sm text-[#836ef9]"
           >
             View Full 11-Rank Ladder →
           </button>
@@ -236,7 +383,7 @@ export default function ShopView(): ReactElement {
           <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">
             <RankBadge rank={rank} size="md" showLevel />
             <div className="grow w-full">
-              <div className="h-2.5 bg-black/40 rounded-full overflow-hidden border border-white/5 p-0.5">
+              <div className="h-2.5 bg-black/40 rounded-full overflow-hidden border border-white/10 p-0.5">
                 <div
                   className="h-full rounded-full transition-all duration-300"
                   style={{
@@ -245,16 +392,16 @@ export default function ShopView(): ReactElement {
                   }}
                 />
               </div>
-              <div className="flex justify-between text-[11px] text-[#f4f1fe]/50 mt-1 font-mono">
+              <div className="flex justify-between text-[11px] text-[#f4f1fe]/55 mt-2 font-mono">
                 <span>{pct}% to next level ({next?.name ?? "Max"})</span>
                 <span>{activity.messageCount} messages · {Math.round((activity.onlineMinutes / 60) * 10) / 10}h online</span>
               </div>
             </div>
           </div>
         ) : (
-          <div className="text-xs text-[#f4f1fe]/50">Sign in to start earning MON and climbing the ladder.</div>
+          <div className="text-xs text-[#f4f1fe]/55">Sign in to see your rank climb the ladder.</div>
         )}
-      </div>
+      </section>
 
       <RankLadderModal
         activity={activity}

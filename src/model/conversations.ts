@@ -1,14 +1,23 @@
-import { Client as XmtpClient, Dm, Group } from "@xmtp/browser-sdk";
+import {
+  Client as XmtpClient,
+  Dm,
+  Group,
+  IdentifierKind,
+} from "@xmtp/browser-sdk";
 import { Conversation } from "./db";
 import { saveMessageFromNetwork } from "./messages";
 import db from "./db";
 import { Mutex } from "async-mutex";
+import { isAddress } from "viem";
 
 export type XmtpDm = Dm<unknown>;
 export type XmtpGroup = Group<unknown>;
 
 // Prevent races when updating the local database
 const conversationMutex = new Mutex();
+// Serialize DM creation: two concurrent createDm calls on the same client can
+// trap the underlying wasm module ("memory access out of bounds").
+const dmMutex = new Mutex();
 
 export function clientAddress(client: XmtpClient): string {
   return (client.accountIdentifier?.identifier ?? "").toLowerCase();
@@ -17,8 +26,19 @@ export function clientAddress(client: XmtpClient): string {
 export function yahooIdentifier(address: string) {
   return {
     identifier: address.toLowerCase(),
-    identifierKind: 0,
-  } as const;
+    identifierKind: IdentifierKind.Ethereum,
+  };
+}
+
+/** The XMTP wasm module trapped — the in-memory client can't recover. */
+const WASM_TRAP_MESSAGE =
+  "Chuglife's chat engine hit a glitch and needs a fresh start. Reload the page (keep just one Choglife tab open) and try again.";
+
+function isWasmTrap(e: unknown): boolean {
+  const msg = e instanceof Error ? e.message : String(e);
+  return /memory access out of bounds|RuntimeError|unreachable executed|out of bounds|use after free/i.test(
+    msg
+  );
 }
 
 /** Fetch the peer member info for a DM (2 members total). */
@@ -197,21 +217,38 @@ export async function startConversation(
   client: XmtpClient,
   address: string
 ): Promise<Conversation> {
-  const canMessage = await XmtpClient.canMessage([
-    { identifier: address.toLowerCase(), identifierKind: 0 } as never,
-  ]);
-  if (!canMessage.get(address.toLowerCase())) {
+  const target = address.trim().toLowerCase();
+  if (!isAddress(target, { strict: false })) {
     throw new Error(
-      "This wallet isn't on XMTP yet — ask them to open Chuglife first!"
+      "That doesn't look like a wallet address — paste the full 0x… address."
     );
   }
+  if (target === clientAddress(client)) {
+    throw new Error("That's your own address, chog — pick someone else.");
+  }
 
-  const dm = await client.conversations.createDmWithIdentifier({
-    identifier: address.toLowerCase(),
-    identifierKind: 0,
-  } as never);
+  return dmMutex.runExclusive(async () => {
+    try {
+      const canMessage = await XmtpClient.canMessage([
+        { identifier: target, identifierKind: IdentifierKind.Ethereum },
+      ]);
+      if (!canMessage.get(target)) {
+        throw new Error(
+          "This wallet isn't on XMTP yet — ask them to open Chuglife first!"
+        );
+      }
 
-  return await saveConversation(client, dm as XmtpDm);
+      const dm = await client.conversations.createDmWithIdentifier({
+        identifier: target,
+        identifierKind: IdentifierKind.Ethereum,
+      });
+
+      return await saveConversation(client, dm as XmtpDm);
+    } catch (e) {
+      if (isWasmTrap(e)) throw new Error(WASM_TRAP_MESSAGE);
+      throw e;
+    }
+  });
 }
 
 /**

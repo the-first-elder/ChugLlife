@@ -8,7 +8,7 @@ import BottomNav from "./BottomNav";
 /** Marketing/entry screens (landing, sign-in) don't get the in-app tab bar. */
 const ENTRY_ROUTES = ["/", "/login"];
 
-/** Standard app shell: header, animated page outlet, footer, mobile tab bar. */
+/** Standard app shell: header, animated page outlet, footer (landing only), mobile tab bar. */
 export default function AppShell(): ReactElement {
   const location = useLocation();
   const isEntry = ENTRY_ROUTES.includes(location.pathname);
@@ -27,7 +27,8 @@ export default function AppShell(): ReactElement {
           <Outlet />
         </motion.div>
       </AnimatePresence>
-      <Footer bottomInset={!isEntry} />
+      {/* Footer is marketing chrome — landing page only, never inside the app */}
+      {location.pathname === "/" && <Footer bottomInset={false} />}
       {!isEntry && <BottomNav />}
     </>
   );

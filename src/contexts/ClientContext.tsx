@@ -16,8 +16,26 @@ import { heartbeat } from "../model/activity";
 import { clientAddress as clientAddressFor } from "../model/conversations";
 import { hexToBytes } from "viem";
 import { Wallet } from "ethers";
+import { LucideX } from "lucide-react";
 
 const DEMO_KEY_STORAGE = "_chugDemoPrivateKey";
+
+/**
+ * XMTP stores its SQLite db in OPFS, which only allows one open connection per
+ * origin. A second tab (or a second client left over from an identity switch)
+ * traps the wasm module with "memory access out of bounds". A Web Lock makes
+ * exactly one tab the messaging instance.
+ */
+const TAB_LOCK_NAME = "chuglife-xmtp";
+
+class TabLockedError extends Error {
+  constructor() {
+    super(
+      "Chuglife messaging is already running in another tab. Close the other tab and tap retry — secure chat only works in one tab at a time."
+    );
+    this.name = "TabLockedError";
+  }
+}
 
 type ClientStatus = {
   client: XmtpClient | null;
@@ -79,12 +97,83 @@ export default function ClientProvider({
   const [status, setStatus] = useState<ClientStatus["status"]>("idle");
   const [error, setError] = useState<string | undefined>();
   const [retryCount, setRetryCount] = useState(0);
+  const [awaitingSignature, setAwaitingSignature] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastDismissed, setToastDismissed] = useState(false);
   const [isDemo, setIsDemo] = useState<boolean>(
     () => !!localStorage.getItem(DEMO_KEY_STORAGE)
   );
 
   /** One in-flight XmtpClient.create per identity; StrictMode-safe. */
   const createLock = useRef(new Map<string, Promise<XmtpClient>>());
+  /** Already-created clients, so re-runs never re-request a signature. */
+  const clientCache = useRef(new Map<string, XmtpClient>());
+  /** Demo creates keyed by private key; StrictMode-safe. */
+  const demoLock = useRef(new Map<string, Promise<XmtpClient>>());
+
+  /** Exclusive messaging lock held while this tab owns the OPFS database. */
+  const tabLockRelease = useRef<(() => void) | null>(null);
+  const tabLockRequest = useRef<Promise<boolean> | null>(null);
+
+  function acquireTabLock(): Promise<boolean> {
+    if (tabLockRelease.current) return Promise.resolve(true);
+    if (typeof navigator === "undefined" || !("locks" in navigator)) {
+      return Promise.resolve(true);
+    }
+    if (!tabLockRequest.current) {
+      const request = new Promise<boolean>((resolve) => {
+        navigator.locks
+          .request(TAB_LOCK_NAME, { ifAvailable: true }, async (lock) => {
+            if (!lock) {
+              resolve(false);
+              return;
+            }
+            resolve(true);
+            let handle: () => void = () => undefined;
+            await new Promise<void>((release) => {
+              handle = release;
+              tabLockRelease.current = release;
+            });
+            if (tabLockRelease.current === handle) {
+              tabLockRelease.current = null;
+              tabLockRequest.current = null;
+            }
+          })
+          .catch(() => resolve(true));
+      });
+      tabLockRequest.current = request;
+      // Another tab owns messaging: allow a later retry to re-request.
+      void request.then((ok) => {
+        if (!ok && tabLockRequest.current === request) {
+          tabLockRequest.current = null;
+        }
+      });
+    }
+    return tabLockRequest.current;
+  }
+
+  function releaseTabLock() {
+    tabLockRelease.current?.();
+    tabLockRelease.current = null;
+    tabLockRequest.current = null;
+  }
+
+  /** The OPFS db fits one live client — never keep two identities open. */
+  function closeOtherClients(keepIdentity?: string) {
+    for (const [id, cached] of Array.from(clientCache.current.entries())) {
+      if (keepIdentity && id === keepIdentity) continue;
+      try {
+        cached.close();
+      } catch {
+        // already torn down
+      }
+      clientCache.current.delete(id);
+      createLock.current.delete(id);
+      demoLock.current.delete(id);
+    }
+    const alive = new Set(clientCache.current.values());
+    setClient((current) => (current && alive.has(current) ? current : null));
+  }
 
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
@@ -92,7 +181,15 @@ export default function ClientProvider({
   const retryConnect = () => {
     if (address) {
       createLock.current.delete(`wallet-${address}`);
+      clientCache.current.delete(`wallet-${address}`);
     }
+    if (isDemo) {
+      const key = localStorage.getItem(DEMO_KEY_STORAGE);
+      if (key) demoLock.current.delete(`demo-${key}`);
+    }
+    // A trapped wasm client can't heal itself — drop it and start clean.
+    closeOtherClients();
+    releaseTabLock();
     setError(undefined);
     setRetryCount((c) => c + 1);
   };
@@ -101,43 +198,65 @@ export default function ClientProvider({
   useEffect(() => {
     if (isDemo) return;
     if (!address || !walletClient) {
+      // Wallet gone: tear the session down and hand the OPFS lock back.
+      closeOtherClients();
+      releaseTabLock();
       setClient(null);
       setStatus("idle");
       return;
     }
 
     const identity = `wallet-${address}`;
-    let pending = createLock.current.get(identity);
-    if (!pending) {
-      pending = (async () => {
-        try {
-          const signer = walletSigner(
-            address,
-            (msg: string) => {
-              const account = walletClient.account ?? address;
-              return walletClient.signMessage({
-                account,
-                message: msg,
-              }) as Promise<`0x${string}`>;
-            }
-          );
-          return await XmtpClient.create(signer, {
-            env: xmtpEnv(),
-            appVersion: "chuglife/1.0.0",
-          } as never);
-        } catch (e) {
-          createLock.current.delete(identity);
-          throw e;
-        }
-      })();
-      createLock.current.set(identity, pending);
+
+    // Already connected this session — never re-trigger "connecting".
+    const cached = clientCache.current.get(identity);
+    if (cached) {
+      setClient(cached);
+      setStatus("ready");
+      return;
     }
 
     (async () => {
       setStatus("connecting");
       setError(undefined);
       try {
+        if (!(await acquireTabLock())) throw new TabLockedError();
+
+        let pending = createLock.current.get(identity);
+        if (!pending) {
+          // Only one identity may hold the OPFS db at a time.
+          closeOtherClients(identity);
+          pending = (async () => {
+            try {
+              const signer = walletSigner(
+                address,
+                async (msg: string) => {
+                  const account = walletClient.account ?? address;
+                  setAwaitingSignature(true);
+                  try {
+                    return (await walletClient.signMessage({
+                      account,
+                      message: msg,
+                    })) as `0x${string}`;
+                  } finally {
+                    setAwaitingSignature(false);
+                  }
+                }
+              );
+              return await XmtpClient.create(signer, {
+                env: xmtpEnv(),
+                appVersion: "chuglife/1.0.0",
+              } as never);
+            } catch (e) {
+              createLock.current.delete(identity);
+              throw e;
+            }
+          })();
+          createLock.current.set(identity, pending);
+        }
+
         const newClient = await pending;
+        clientCache.current.set(identity, newClient);
         setClient(newClient);
         setStatus("ready");
       } catch (e) {
@@ -171,7 +290,6 @@ export default function ClientProvider({
     }
 
     (async () => {
-      setStatus("connecting");
       setError(undefined);
 
       const storedKey = localStorage.getItem(
@@ -179,8 +297,30 @@ export default function ClientProvider({
       ) as `0x${string}` | null;
       const key = storedKey ?? freshKey();
 
+      const cacheId = `demo-${key}`;
+      const cached = clientCache.current.get(cacheId);
+      if (cached) {
+        setClient(cached);
+        setStatus("ready");
+        return;
+      }
+
+      setStatus("connecting");
+
       try {
-        const newClient = await createDemoClient(key);
+        if (!(await acquireTabLock())) throw new TabLockedError();
+
+        let pending = demoLock.current.get(cacheId);
+        if (!pending) {
+          // Only one identity may hold the OPFS db at a time.
+          closeOtherClients(cacheId);
+          pending = createDemoClient(key);
+          demoLock.current.set(cacheId, pending);
+          pending.catch(() => demoLock.current.delete(cacheId));
+        }
+
+        const newClient = await pending;
+        clientCache.current.set(cacheId, newClient);
         setClient(newClient);
         setStatus("ready");
       } catch (e) {
@@ -192,7 +332,9 @@ export default function ClientProvider({
           console.warn("Demo inbox out of installations — rotating demo key");
           indexedDB.deleteDatabase("DB");
           try {
-            const newClient = await createDemoClient(freshKey());
+            const rotated = freshKey();
+            const newClient = await createDemoClient(rotated);
+            clientCache.current.set(`demo-${rotated}`, newClient);
             setClient(newClient);
             setStatus("ready");
           } catch (err) {
@@ -209,13 +351,37 @@ export default function ClientProvider({
     })();
 
     return () => undefined;
-  }, [isDemo]);
+  }, [isDemo, retryCount]);
+
+  /** Delay the toast so fast connections never flash it; time out zombie connects. */
+  useEffect(() => {
+    if (status !== "connecting") {
+      setShowToast(false);
+      setToastDismissed(false);
+      setAwaitingSignature(false);
+      return;
+    }
+    const showTimer = setTimeout(() => setShowToast(true), 700);
+    const timeout = setTimeout(() => {
+      setStatus("error");
+      setError("Couldn't finish setting up your inbox. Tap retry to try again.");
+    }, 60_000);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(timeout);
+    };
+  }, [status]);
 
   function startDemo(demoKey?: `0x${string}`) {
+    const switchingIdentity =
+      !isDemo ||
+      (!!demoKey && demoKey !== localStorage.getItem(DEMO_KEY_STORAGE));
     if (demoKey) {
       localStorage.setItem(DEMO_KEY_STORAGE, demoKey);
-      setClient(null);
     }
+    // A wallet client can't share the OPFS db with the demo identity.
+    if (switchingIdentity) closeOtherClients();
+    setClient(null);
     setIsDemo(true);
   }
 
@@ -240,6 +406,12 @@ export default function ClientProvider({
     setIsDemo(false);
     setClient(null);
     setStatus("idle");
+    setAwaitingSignature(false);
+    closeOtherClients();
+    releaseTabLock();
+    clientCache.current.clear();
+    demoLock.current.clear();
+    createLock.current.clear();
   }
 
   const value: ClientStatus = {
@@ -255,11 +427,43 @@ export default function ClientProvider({
 
   return (
     <ClientContext.Provider value={value}>
-      {/* Non-intrusive status toast when connecting / awaiting wallet signature */}
-      {status === "connecting" && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#161228] border border-[#836ef9]/50 shadow-chog px-5 py-3 rounded-2xl flex items-center gap-3 text-sm text-[#f4f1fe] animate-pulse">
-          <span className="w-3 h-3 rounded-full bg-[#836ef9] animate-ping" />
-          <span>Summoning your XMTP identity… Check your wallet for signature request</span>
+      {/* Non-intrusive status toast — delayed so fast connects never flash it */}
+      {status === "connecting" && showToast && !toastDismissed && (
+        <div
+          className="fixed left-1/2 z-[60] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2"
+          style={{ top: "calc(4.5rem + env(safe-area-inset-top))" }}
+          role="status"
+        >
+          <div className="cl-fade-in flex items-center gap-3 rounded-2xl border border-[#836ef9]/40 bg-[#161228]/95 px-4 py-3 text-[#f4f1fe] shadow-chog backdrop-blur-xl">
+            <span
+              aria-hidden
+              className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[#836ef9]/25 border-t-[#836ef9]"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-bold">
+                {isDemo
+                  ? "Waking up your Chog identity…"
+                  : awaitingSignature
+                  ? "Check your wallet"
+                  : "Connecting your Chog identity…"}
+              </div>
+              <div className="truncate text-[10px] text-[#f4f1fe]/55">
+                {isDemo
+                  ? "Loading your demo inbox"
+                  : awaitingSignature
+                  ? "Sign the request to finish setup"
+                  : "Setting up your secure inbox"}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setToastDismissed(true)}
+              aria-label="Dismiss"
+              className="shrink-0 rounded-full p-1 text-[#f4f1fe]/40 transition hover:bg-white/10 hover:text-white"
+            >
+              <LucideX size={14} />
+            </button>
+          </div>
         </div>
       )}
       {children}
