@@ -44,9 +44,9 @@ async function startDemoUser(
 test("landing page renders the vibe pitch", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    /Take the Chog out/i
+    /Your Chog is/i
   );
-  await expect(page.getByText(/vibe dating for/i)).toBeVisible();
+  await expect(page.getByText(/vibe-dating/i)).toBeVisible();
   const demoLink = page.getByRole("link", { name: /Try the demo/i });
   await expect(demoLink).toBeVisible();
   await demoLink.click();

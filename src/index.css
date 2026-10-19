@@ -28,7 +28,31 @@ body {
   color: #f4f1fe;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* Native-app feel on touch devices */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+nav a,
+nav button,
+a[data-navigation] {
+  touch-action: manipulation;
+  user-select: none;
+}
+/* Only inner chrome scrollbars, never the page */
+@media (max-width: 767px) {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
 
 /* Custom smooth dark scrollbar */
 ::-webkit-scrollbar {
@@ -82,6 +106,14 @@ body {
 .horizontal-shake {
   animation: horizontal-shaking 0.25s;
   animation-iteration-count: 1;
+}
+
+/* Branded gradient headline */
+.text-gradient {
+  background: linear-gradient(100deg, #a99bfc 0%, #836ef9 45%, #5ce68a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Chog marquee feel for the landing band */

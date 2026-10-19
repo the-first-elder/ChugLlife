@@ -10,7 +10,7 @@ import { rankProgress } from "../model/rank";
 import RankBadge from "../components/RankBadge";
 import RankLadderModal from "../components/RankLadderModal";
 import PeerAvatar from "./PeerAvatar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LucideCoins,
   LucideCopy,
@@ -27,6 +27,7 @@ export default function HomeView(): ReactElement {
   const { stopDemo, isDemo } = useClientStatus();
   const { address } = useAccount();
   const { disconnectAsync } = useDisconnect();
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [showRankModal, setShowRankModal] = useState(false);
 
@@ -42,12 +43,14 @@ export default function HomeView(): ReactElement {
   async function logout() {
     if (isDemo) {
       stopDemo();
+      navigate("/login");
       return;
     }
     try {
       await disconnectAsync();
     } finally {
       indexedDB.deleteDatabase("DB");
+      navigate("/");
     }
   }
 
@@ -104,6 +107,7 @@ export default function HomeView(): ReactElement {
             {rank && activity && (
               <button
                 type="button"
+                data-testid="open-rank-ladder"
                 onClick={() => setShowRankModal(true)}
                 className="flex items-center gap-3 bg-[#1e183a]/80 hover:bg-[#1e183a] border border-[#836ef9]/30 p-2.5 rounded-2xl transition group text-left"
                 title="Click to view rank progression ladder"

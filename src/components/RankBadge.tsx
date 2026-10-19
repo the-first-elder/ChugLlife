@@ -10,8 +10,6 @@ export default function RankBadge(p: {
   const isSm = p.size === "sm";
   const isLg = p.size === "lg";
 
-  // Tier 1: Hatchling, Sprout, Tadpole (Levels 1-3) - Clean, welcoming
-  const isTier1 = level <= 3;
   // Tier 2: Hopper, Trailblazer, Pathfinder (Levels 4-6) - Vibrant neon
   const isTier2 = level >= 4 && level <= 6;
   // Tier 3: Vanguard, Elite, Ascendant (Levels 7-9) - Cosmic aura & pulse

@@ -1,5 +1,4 @@
 import { FormEvent, ReactElement, useState } from "react";
-import Button from "../components/Button";
 import { useClient } from "../hooks/useClient";
 import { Conversation } from "../model/db";
 import { sendMessage } from "../model/messages";
@@ -59,7 +58,10 @@ export default function MessageComposerView({
   }
 
   return (
-    <div className="sticky left-0 right-0 bottom-0 p-3 sm:p-4 bg-[#141026]/95 backdrop-blur-xl border-t border-[rgba(244,241,254,0.08)]">
+    <div
+      className="sticky left-0 right-0 bottom-0 p-3 sm:p-4 bg-[#141026]/95 backdrop-blur-xl border-t border-[rgba(244,241,254,0.08)]"
+      style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+    >
       {modNotice && (
         <div
           data-testid="composer-mod-notice"

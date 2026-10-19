@@ -17,10 +17,12 @@ const projectId =
 const wagmiConfig = getDefaultConfig({
   appName: "Chuglife",
   projectId,
-  chains: [monadTestnet, monadMainnet, mainnet, sepolia],
+  // Mainnet first — it's the default chain. Chog Genesis lives on Monad
+  // mainnet; testnet has no contract so on-chain reads fail there.
+  chains: [monadMainnet, monadTestnet, mainnet, sepolia],
   transports: {
-    [monadTestnet.id]: http("https://testnet-rpc.monad.xyz"),
     [monadMainnet.id]: http("https://rpc.monad.xyz"),
+    [monadTestnet.id]: http("https://testnet-rpc.monad.xyz"),
     [mainnet.id]: http(),
     [sepolia.id]: http(),
   },

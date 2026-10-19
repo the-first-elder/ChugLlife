@@ -6,7 +6,6 @@ import { useClient } from "../../hooks/useClient";
 import { clientAddress } from "../../model/conversations";
 import { ensureStarterRooms } from "../../model/rooms";
 import {
-  LucideMessageSquare,
   LucidePlusSquare,
   LucideSearch,
   LucideShield,

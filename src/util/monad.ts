@@ -28,11 +28,16 @@ export const monadMainnet = defineChain({
   testnet: false,
 });
 
-export const monad = monadTestnet;
+/**
+ * Chuglife runs on Monad **mainnet** — the Chog Genesis collection
+ * (0xc96d...73763, 1969 pieces) only exists there. Testnet has no contract,
+ * so reads like `balanceOf` return empty data and throw.
+ */
+export const monad = monadMainnet;
 
 export const monadPublicClient = createPublicClient({
-  chain: monadTestnet,
-  transport: http("https://testnet-rpc.monad.xyz"),
+  chain: monadMainnet,
+  transport: http("https://rpc.monad.xyz"),
   batch: { multicall: true },
 });
 

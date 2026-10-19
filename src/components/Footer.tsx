@@ -2,9 +2,13 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import { LucideChogIcon } from "./ChogIcons";
 
-export const Footer = () => {
+export const Footer = ({ bottomInset = true }: { bottomInset?: boolean }) => {
   return (
-    <footer className="px-6 py-12 pb-28 sm:pb-16 bg-[#0e0b1a] border-t border-[rgba(244,241,254,0.08)] text-[#f4f1fe]">
+    <footer
+      className={`px-6 py-12 bg-[#0e0b1a] border-t border-[rgba(244,241,254,0.08)] text-[#f4f1fe] ${
+        bottomInset ? "pb-36" : "pb-12"
+      }`}
+    >
       <div className="max-w-6xl mx-auto flex gap-8 max-md:flex-col">
         <div className="flex flex-col w-[40%] max-md:w-full">
           <Link

@@ -2,7 +2,7 @@ import { ReactElement } from "react";
 import { RANKS, rankProgress } from "../model/rank";
 import { Activity } from "../model/db";
 import RankBadge from "./RankBadge";
-import { LucideX, LucideFlame, LucideClock, LucideMessageSquare, LucideAward, LucideSparkles } from "lucide-react";
+import { LucideX, LucideFlame, LucideClock, LucideMessageSquare, LucideSparkles } from "lucide-react";
 
 export default function RankLadderModal({
   activity,

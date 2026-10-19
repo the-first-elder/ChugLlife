@@ -19,6 +19,12 @@ const Match: React.FC = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // No wallet and no demo session → nothing to fetch; show the connect CTA only.
+      if (!isDemo && !address) {
+        setChogs(null);
+        setError(undefined);
+        return;
+      }
       setChogs(null);
       setError(undefined);
       try {
@@ -59,13 +65,20 @@ const Match: React.FC = () => {
       </p>
 
       {needsWallet && (
-        <div className="mt-10 bg-[#161228] border border-white/10 rounded-2xl shadow-chog p-8 max-w-md mx-auto text-center">
-          <span className="text-3xl">🐸</span>
-          <p className="font-bold mt-2 text-[#f4f1fe]">Connect your Monad wallet</p>
-          <p className="text-sm text-[#f4f1fe]/60 mt-1">
-            Or hit "Try the Chuglife demo" from the sign-in screen to explore
-            with sample data.
+        <div className="mt-10 bg-[#161228] border border-white/10 rounded-2xl shadow-chog p-8 max-w-md mx-auto text-center relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#836ef9]/15 rounded-full blur-2xl pointer-events-none" />
+          <div className="text-4xl mb-2">🐸</div>
+          <p className="font-extrabold text-[#f4f1fe]">Connect your Monad wallet</p>
+          <p className="text-sm text-[#f4f1fe]/60 mt-1.5 leading-relaxed">
+            Sign in with a wallet that holds a Chog Genesis — or explore right
+            away with sample data.
           </p>
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-2xl bg-[#836ef9] text-white font-bold text-sm shadow-chog-sm hover:bg-[#9d8dfc] active:scale-95 transition"
+          >
+            Sign in / Try the demo
+          </Link>
         </div>
       )}
 
@@ -87,7 +100,7 @@ const Match: React.FC = () => {
         </div>
       )}
 
-      {error === "none" && (
+      {error === "none" && !needsWallet && (
         <div className="mt-10 bg-[#161228] border border-white/10 rounded-2xl shadow-chog-sm p-6 max-w-lg mx-auto text-center">
           <p className="font-bold text-[#f4f1fe]">No Chogs in this wallet 🫤</p>
           <p className="text-sm text-[#f4f1fe]/60 mt-2">

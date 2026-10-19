@@ -243,6 +243,11 @@ class DB extends Dexie {
       roomBans: `key, topic, address`,
       roomMutes: `key, topic, address`,
     });
+
+    // v5: add updatedAt index to rooms (RoomsListView sorts by it)
+    this.version(5).stores({
+      rooms: `topic, owner, archived, createdAt, updatedAt`,
+    });
   }
 }
 

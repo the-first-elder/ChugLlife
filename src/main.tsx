@@ -13,8 +13,7 @@ import ConversationViewWithLoader from "./views/ConversationViewWithLoader.tsx";
 import NewConversationView from "./views/NewConversationView.tsx";
 import WalletContext from "./contexts/WalletContext.tsx";
 import ClientProvider from "./contexts/ClientContext.tsx";
-import Header from "./components/Header.tsx";
-import { Footer } from "./components/Footer.tsx";
+import AppShell, { ChatShell } from "./components/AppShell.tsx";
 import Landing from "./pages/Landing/Landing";
 import Explore from "./pages/Explore/Explore";
 import Match from "./pages/Match/Match.tsx";
@@ -27,166 +26,41 @@ import { NextUIProvider } from "@nextui-org/system";
 import HomeView from "./views/HomeView.tsx";
 import LoginView from "./views/LoginView.tsx";
 import Collections from "./pages/Collections/Collections.tsx";
+import NoMatch from "./views/NoMatch.tsx";
 
 async function conversationLoader({ params }: LoaderFunctionArgs) {
   const conversation = await findConversation(params.conversationTopic ?? "");
   return { conversation };
 }
 
-import BottomNav from "./components/BottomNav.tsx";
-import NoMatch from "./views/NoMatch.tsx";
-
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: (
-      <>
-        <Header />
-        <Landing />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
+    element: <AppShell />,
+    children: [
+      { path: "/", element: <Landing /> },
+      { path: "/explore", element: <Explore /> },
+      { path: "/login", element: <LoginView /> },
+      { path: "/collections", element: <Collections /> },
+      { path: "/match", element: <Match /> },
+      { path: "/match/:id", element: <MatchList /> },
+      { path: "/rooms", element: <RoomsListView /> },
+      { path: "/rooms/new", element: <CreateRoomView /> },
+      { path: "/room/:topic/settings", element: <RoomSettingsView /> },
+      { path: "/shop", element: <ShopView /> },
+      { path: "/conversations", element: <HomeView /> },
+      { path: "/new/:id", element: <NewConversationView /> },
+      { path: "*", element: <NoMatch /> },
+    ],
   },
   {
-    path: "/explore",
-    element: (
-      <>
-        <Header />
-        <Explore />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
-  },
-  {
-    path: "/login",
-    element: (
-      <>
-        <LoginView />
-        <BottomNav />
-      </>
-    ),
-  },
-  {
-    path: "/collections",
-    element: (
-      <>
-        <Header />
-        <Collections />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
-  },
-  {
-    path: "/match",
-    element: (
-      <>
-        <Header />
-        <Match />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
-  },
-  {
-    path: "/match/:id",
-    element: (
-      <>
-        <Header />
-        <MatchList />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
-  },
-  {
-    path: "/rooms",
-    element: (
-      <>
-        <Header />
-        <RoomsListView />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
-  },
-  {
-    path: "/rooms/new",
-    element: (
-      <>
-        <Header />
-        <CreateRoomView />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
-  },
-  {
-    path: "/room/:topic/settings",
-    element: (
-      <>
-        <Header />
-        <RoomSettingsView />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
-  },
-  {
-    path: "/shop",
-    element: (
-      <>
-        <Header />
-        <ShopView />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
-  },
-  {
-    path: "/conversations",
-    element: (
-      <>
-        <Header />
-        <HomeView />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
-  },
-  {
-    path: "/c/:conversationTopic",
-    element: (
-      <>
-        <Header />
-        <ConversationViewWithLoader />
-      </>
-    ),
-    loader: conversationLoader,
-  },
-  {
-    path: "/new/:id",
-    element: (
-      <>
-        <Header />
-        <NewConversationView />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
-  },
-  {
-    path: "*",
-    element: (
-      <>
-        <Header />
-        <NoMatch />
-        <Footer />
-        <BottomNav />
-      </>
-    ),
+    element: <ChatShell />,
+    children: [
+      {
+        path: "/c/:conversationTopic",
+        element: <ConversationViewWithLoader />,
+        loader: conversationLoader,
+      },
+    ],
   },
 ]);
 

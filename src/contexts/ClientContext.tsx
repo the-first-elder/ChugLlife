@@ -155,43 +155,56 @@ export default function ClientProvider({
   useEffect(() => {
     if (!isDemo) return;
 
-    const ensureKey = () => {
-      const existing = localStorage.getItem(DEMO_KEY_STORAGE) as `0x${string}` | null;
-      if (existing) return existing;
-      const generated = new Wallet(Wallet.createRandom().privateKey).privateKey as `0x${string}`;
+    const freshKey = () => {
+      const generated = new Wallet(Wallet.createRandom().privateKey)
+        .privateKey as `0x${string}`;
       localStorage.setItem(DEMO_KEY_STORAGE, generated);
       return generated;
     };
 
+    async function createDemoClient(key: `0x${string}`): Promise<XmtpClient> {
+      const signer = createEOASigner(key);
+      return await XmtpClient.create(signer, {
+        env: xmtpEnv(),
+        appVersion: "chuglife/1.0.0 (demo)",
+      } as never);
+    }
+
     (async () => {
       setStatus("connecting");
       setError(undefined);
-      const key = ensureKey();
-      const lockId = `demo-${key}`;
-      let pending = createLock.current.get(lockId);
-      if (!pending) {
-        pending = (async () => {
-          try {
-            const signer = createEOASigner(key);
-            return await XmtpClient.create(signer, {
-              env: xmtpEnv(),
-              appVersion: "chuglife/1.0.0 (demo)",
-            } as never);
-          } catch (e) {
-            createLock.current.delete(lockId);
-            throw e;
-          }
-        })();
-        createLock.current.set(lockId, pending);
-      }
+
+      const storedKey = localStorage.getItem(
+        DEMO_KEY_STORAGE
+      ) as `0x${string}` | null;
+      const key = storedKey ?? freshKey();
+
       try {
-        const newClient = await pending;
+        const newClient = await createDemoClient(key);
         setClient(newClient);
         setStatus("ready");
       } catch (e) {
+        // XMTP caps 10 installations per inbox. When demo keys from prior
+        // runs burn their slots (e.g. a wiped local DB), rotate to a fresh
+        // identity and retry once so the demo never bricks itself.
+        const msg = e instanceof Error ? e.message : String(e);
+        if (/already registered .* installations/i.test(msg)) {
+          console.warn("Demo inbox out of installations — rotating demo key");
+          indexedDB.deleteDatabase("DB");
+          try {
+            const newClient = await createDemoClient(freshKey());
+            setClient(newClient);
+            setStatus("ready");
+          } catch (err) {
+            console.error("XMTP demo client creation failed", err);
+            setStatus("error");
+            setError(err instanceof Error ? err.message : String(err));
+          }
+          return;
+        }
         console.error("XMTP demo client creation failed", e);
         setStatus("error");
-        setError(e instanceof Error ? e.message : String(e));
+        setError(msg);
       }
     })();
 
