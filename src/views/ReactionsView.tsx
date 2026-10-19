@@ -4,14 +4,11 @@ import { useReactions } from "../hooks/useReactions";
 import { addReaction, removeReaction } from "../model/reactions";
 import { useClient } from "../hooks/useClient";
 import { clientAddress } from "../model/conversations";
-import classNames from "classnames";
-import { LucideThumbsUp } from "lucide-react";
+import { LucideSmilePlus } from "lucide-react";
 
-const defaultReactions = ["👍", "👎", "🎉", "❤️", "🐸"] as const;
+const defaultReactions = ["👍", "❤️", "🎉", "🐸", "😂"] as const;
 
-type ReactionEmoji = (typeof defaultReactions)[number];
-
-function ReactionView({
+function ReactionPill({
   myAddress,
   name,
   reactions,
@@ -19,34 +16,27 @@ function ReactionView({
   onRemove,
 }: {
   myAddress: string;
-  name: ReactionEmoji;
+  name: string;
   reactions: MessageReaction[];
   onAdd: () => void;
   onRemove: () => void;
 }): ReactElement {
-  const currentUserReacted = reactions
-    .map((reaction) => reaction.reactor)
-    .includes(myAddress);
-
-  function onClick() {
-    if (currentUserReacted) {
-      onRemove();
-    } else {
-      onAdd();
-    }
-  }
+  const mine = reactions.map((r) => r.reactor).includes(myAddress);
 
   return (
     <button
-      onClick={onClick}
-      className={classNames(
-        "py-0.5 px-2 border border-chog-mauve/40 rounded-full text-xs text-chog-ink",
-        {
-          "bg-chog-pink text-white border-chog-pink": currentUserReacted,
-        }
-      )}
+      type="button"
+      onClick={() => (mine ? onRemove() : onAdd())}
+      aria-pressed={mine}
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-[3px] text-[11px] font-bold leading-none transition active:scale-90 ${
+        mine
+          ? "border-[#836ef9]/60 bg-[#836ef9]/20 text-[#f4f1fe]"
+          : "border-white/10 bg-black/25 text-[#f4f1fe]/70 hover:border-[#836ef9]/40 hover:bg-black/40"
+      }`}
+      title={mine ? "Remove your reaction" : "Add reaction"}
     >
-      {name} {reactions.length}
+      <span className="text-[12px]">{name}</span>
+      <span className="tabular-nums opacity-80">{reactions.length}</span>
     </button>
   );
 }
@@ -71,11 +61,11 @@ export default function ReactionsView({
   }, {} as { [name: string]: MessageReaction[] });
 
   return (
-    <div className="flex space-x-1.5">
+    <div className="flex flex-wrap items-center gap-1.5">
       {(Object.keys(reactionsByName) as string[]).map((name) => (
-        <ReactionView
+        <ReactionPill
           key={name}
-          name={name as ReactionEmoji}
+          name={name}
           reactions={reactionsByName[name] ?? []}
           myAddress={myAddress}
           onAdd={() => addReaction(name, message, client)}
@@ -84,37 +74,34 @@ export default function ReactionsView({
       ))}
 
       {isReacting ? (
-        <div className="space-x-1.5">
+        <div className="cl-pop flex items-center gap-1.5 rounded-full border border-[#836ef9]/30 bg-[#1b1533] px-2 py-1">
           {defaultReactions.map((emoji) => {
             if (reactionsByName[emoji]) return null;
             return (
               <button
+                type="button"
+                key={emoji}
                 onClick={() => {
-                  addReaction(emoji, message, client);
+                  addReaction(emoji as string, message, client);
                   setIsReacting(false);
                 }}
-                key={emoji}
-                className="py-0.5 px-2 border border-chog-mauve/40 rounded-full text-xs"
+                className="text-[16px] leading-none transition hover:scale-125 active:scale-95"
+                aria-label={`React ${emoji}`}
               >
                 {emoji}
               </button>
             );
           })}
-
-          <button
-            className="text-xs text-chog-ink/50"
-            onClick={() => setIsReacting(false)}
-          >
-            cancel
-          </button>
         </div>
       ) : (
         <button
-          className="text-[10px] text-chog-ink/40 hover:text-chog-pink transition"
+          type="button"
           onClick={() => setIsReacting(true)}
-          title="React"
+          className="inline-flex items-center gap-1 rounded-full border border-transparent px-1.5 py-[3px] text-[11px] font-bold text-[#f4f1fe]/45 transition hover:border-[#836ef9]/30 hover:bg-[#836ef9]/10 hover:text-[#836ef9]"
+          title="Add a reaction"
+          aria-label="Add a reaction"
         >
-          <LucideThumbsUp size={12} strokeWidth={4} />
+          <LucideSmilePlus size={13} />
         </button>
       )}
     </div>

@@ -432,6 +432,47 @@ a[data-navigation] {
   scrollbar-width: none;
 }
 
+/* Chat canvas: subtle dotted grid so bubbles read as floating on a surface */
+.bg-chog-dots {
+  background-color: #0e0b1a;
+  background-image: radial-gradient(
+    rgba(169, 155, 252, 0.09) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+}
+
+/* Live presence dot */
+@keyframes cl-dot-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(92, 230, 138, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(92, 230, 138, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(92, 230, 138, 0);
+  }
+}
+.cl-pulse-dot {
+  animation: cl-dot-pulse 2s ease-out infinite;
+}
+
+/* Bubble entrance for newly arrived messages */
+@keyframes cl-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.cl-bubble-in {
+  animation: cl-bubble-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cl-fade-in,
   .cl-stagger > *,
@@ -441,6 +482,8 @@ a[data-navigation] {
   .cl-pop,
   .cl-pulse-ring,
   .cl-nudge,
+  .cl-pulse-dot,
+  .cl-bubble-in,
   .chog-marquee > span {
     animation: none !important;
   }

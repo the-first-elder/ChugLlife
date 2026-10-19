@@ -1,16 +1,24 @@
-import { Fragment, ReactElement, useEffect, useState } from "react";
+import { Fragment, ReactElement, useEffect, useRef, useState } from "react";
 import { Conversation, Message } from "../model/db";
 import { useMessages } from "../hooks/useMessages";
 import MessageComposerView from "./MessageComposerView";
 import MessageCellView from "./MessageCellView";
 import { Link } from "react-router-dom";
-import { LucideArrowLeft, LucideInfo, LucideMessageSquarePlus } from "lucide-react";
+import {
+  LucideArrowLeft,
+  LucideInfo,
+  LucideMessageSquarePlus,
+  LucideChevronDown,
+} from "lucide-react";
 import ConversationSettingsView from "./ConversationSettingsView";
 import ConversationListView from "./ConversationListView";
 import PeerAvatar from "./PeerAvatar";
 import { CHOG_NFT_ADDRESS } from "../util/monad";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../model/db";
+import { usePeerPresence } from "../hooks/usePeerPresence";
+import { clientAddress } from "../model/conversations";
+import { useClient } from "../hooks/useClient";
 
 const appearsInMessageList = (message: Message): boolean => {
   const type = (message.contentType as { typeId?: string }).typeId;
@@ -40,18 +48,48 @@ export default function ConversationView({
 }): ReactElement {
   const messages = useMessages(conversation);
   const [isShowingSettings, setIsShowingSettings] = useState(false);
+  const [atBottom, setAtBottom] = useState(true);
   const isRoom = conversation.peerAddress === "";
   const room = useLiveQuery(
     () => db.rooms.get(conversation.topic),
     [conversation.topic]
   );
+  const client = useClient();
+  const myAddress = client ? clientAddress(client) : "";
+
+  const lastMsg = messages?.[messages.length - 1];
+  const presence = usePeerPresence(
+    lastMsg?.sentAt,
+    lastMsg?.senderAddress,
+    myAddress
+  );
+
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    window.scrollTo({ top: 100000, behavior: "smooth" });
-  }, [messages?.length]);
+    const el = scrollRef.current;
+    if (!el) return;
+    if (atBottom) {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }
+  }, [messages?.length, atBottom]);
+
+  function onScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
+    setAtBottom(distance < 80);
+  }
+
+  function scrollToBottom() {
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }
 
   return (
-    <section className="flex flex-row bg-[#0e0b1a] text-[#f4f1fe] min-h-[calc(100vh-65px)]">
+    <section className="flex flex-row bg-[#0e0b1a] text-[#f4f1fe]">
       {/* Desktop Sidebar */}
       <div className="hidden md:block w-full max-w-xs p-4 space-y-3 bg-[#141026] border-r border-[rgba(244,241,254,0.08)]">
         <div className="flex items-center justify-between gap-2 py-1">
@@ -67,8 +105,8 @@ export default function ConversationView({
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex flex-col w-full h-[calc(100vh-65px)] bg-[#0e0b1a]">
-        <header className="sticky top-0 z-40 px-4 py-3 bg-[#141026]/90 backdrop-blur-xl border-b border-[rgba(244,241,254,0.08)]">
+      <div className="flex flex-col w-full h-[calc(100dvh-3.5rem-env(safe-area-inset-top))] bg-[#0e0b1a]">
+        <header className="z-40 px-4 py-3 shrink-0 bg-[#141026]/90 backdrop-blur-xl border-b border-[rgba(244,241,254,0.08)]">
           <div className="flex justify-between items-center gap-2 font-bold">
             <Link
               to="/conversations"
@@ -96,13 +134,37 @@ export default function ConversationView({
                 </span>
 
                 <span className="text-[10px] text-[#f4f1fe]/55 font-normal flex items-center gap-1.5 flex-wrap">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#5ce68a] inline-block shadow-[0_0_6px_#5ce68a]" />
                   {isRoom ? (
-                    <span className="text-[#5ce68a] font-mono font-bold">
-                      room · 👮 chog police active
-                    </span>
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#5ce68a] inline-block shadow-[0_0_6px_#5ce68a]" />
+                      <span className="text-[#5ce68a] font-mono font-bold">
+                        room · 👮 chog police active
+                      </span>
+                    </>
+                  ) : presence.label ? (
+                    <>
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full inline-block ${
+                          presence.online
+                            ? "bg-[#5ce68a] shadow-[0_0_6px_#5ce68a] cl-pulse-dot"
+                            : "bg-[#f4f1fe]/40"
+                        }`}
+                      />
+                      <span
+                        className={
+                          presence.online
+                            ? "text-[#5ce68a] font-bold"
+                            : "text-[#f4f1fe]/55"
+                        }
+                      >
+                        {presence.label}
+                      </span>
+                    </>
                   ) : (
-                    <span>secure XMTP chat</span>
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#5ce68a] inline-block shadow-[0_0_6px_#5ce68a]" />
+                      <span>secure XMTP chat</span>
+                    </>
                   )}
 
                   {isRoom && (
@@ -147,41 +209,59 @@ export default function ConversationView({
           )}
         </header>
 
-        <div
-          className="cl-stagger flex-1 grow shrink-0 flex flex-col space-y-2.5 px-4 py-4 overflow-y-auto"
-          data-testid="message-list"
-        >
-          {messages?.length === 0 && (
-            <div className="cl-empty cl-fade-in my-auto w-full max-w-sm self-center flex flex-col items-center">
-              <span className="text-4xl block mb-3">🐸</span>
-              <p className="text-base font-bold text-[#f4f1fe]">
-                {isRoom ? "Welcome to the room!" : "Your chogmate conversation"}
-              </p>
-              <p className="text-xs text-[#f4f1fe]/55 mt-1 max-w-xs">
-                {isRoom
-                  ? "Say gm! Chatting in here pushes you up the rank ladder."
-                  : "Say gm to start vibing. Messages are encrypted end-to-end."}
-              </p>
+        <div className="relative flex-1 min-h-0 bg-chog-dots">
+          <div
+            ref={scrollRef}
+            onScroll={onScroll}
+            className="cl-stagger flex h-full flex-col space-y-2.5 overflow-y-auto px-3 py-4 sm:px-4"
+            data-testid="message-list"
+          >
+            <div className="mx-auto flex w-full max-w-3xl flex-col space-y-2.5">
+              {messages?.length === 0 && (
+                <div className="cl-empty cl-fade-in my-auto w-full max-w-sm self-center flex flex-col items-center">
+                  <span className="text-4xl block mb-3">🐸</span>
+                  <p className="text-base font-bold text-[#f4f1fe]">
+                    {isRoom ? "Welcome to the room!" : "Your chogmate conversation"}
+                  </p>
+                  <p className="text-xs text-[#f4f1fe]/55 mt-1 max-w-xs">
+                    {isRoom
+                      ? "Say gm! Chatting in here pushes you up the rank ladder."
+                      : "Say gm to start vibing. Messages are encrypted end-to-end."}
+                  </p>
+                </div>
+              )}
+              {messages
+                ? messages.filter(appearsInMessageList).map((message, index, list) => {
+                    const prev = list[index - 1];
+                    const newDay = !prev || dayKey(prev.sentAt) !== dayKey(message.sentAt);
+                    return (
+                      <Fragment key={message.id}>
+                        {newDay && (
+                          <span className="cl-chip self-center my-1">
+                            {formatDayLabel(message.sentAt)}
+                          </span>
+                        )}
+                        <MessageCellView message={message} />
+                      </Fragment>
+                    );
+                  })
+                : (
+                  <span className="text-[#f4f1fe]/55 text-sm text-center py-6">Could not load messages</span>
+                )}
             </div>
+          </div>
+
+          {!atBottom && messages && messages.length > 0 && (
+            <button
+              type="button"
+              onClick={scrollToBottom}
+              className="cl-pop absolute bottom-4 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-[#836ef9]/40 bg-[#1e183a]/95 text-[#836ef9] shadow-chog backdrop-blur transition hover:bg-[#241d47] active:scale-90"
+              aria-label="Jump to latest messages"
+              title="Jump to latest"
+            >
+              <LucideChevronDown size={18} />
+            </button>
           )}
-          {messages
-            ? messages.filter(appearsInMessageList).map((message, index, list) => {
-                const prev = list[index - 1];
-                const newDay = !prev || dayKey(prev.sentAt) !== dayKey(message.sentAt);
-                return (
-                  <Fragment key={message.id}>
-                    {newDay && (
-                      <span className="cl-chip self-center my-1">
-                        {formatDayLabel(message.sentAt)}
-                      </span>
-                    )}
-                    <MessageCellView message={message} />
-                  </Fragment>
-                );
-              })
-            : (
-              <span className="text-[#f4f1fe]/55 text-sm text-center py-6">Could not load messages</span>
-            )}
         </div>
 
         <div className="grow-0">

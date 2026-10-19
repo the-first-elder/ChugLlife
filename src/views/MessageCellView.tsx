@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { ReactElement, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Message } from "../model/db";
 import db from "../model/db";
@@ -7,12 +7,13 @@ import RankBadge from "../components/RankBadge";
 import ReactionsView from "./ReactionsView";
 import { useReplies } from "../hooks/useReplies";
 import { shortAddress } from "../util/shortAddress";
+import { LucideCheck, LucideClock } from "lucide-react";
 
 export function Content({ message }: { message: Message }): ReactElement {
   const type = (message.contentType as { typeId?: string }).typeId;
 
   if (type === "text" && typeof message.content === "string") {
-    return <span className="whitespace-pre-wrap">{message.content}</span>;
+    return <span className="whitespace-pre-wrap break-words">{message.content}</span>;
   }
 
   if (type === "reply") {
@@ -31,7 +32,7 @@ export function Content({ message }: { message: Message }): ReactElement {
         >
           ↩ replying to a message
         </span>
-        <span className="whitespace-pre-wrap">{reply?.content ?? ""}</span>
+        <span className="whitespace-pre-wrap break-words">{reply?.content ?? ""}</span>
       </span>
     );
   }
@@ -95,76 +96,114 @@ export function SenderRank({ address, topic }: { address: string; topic?: string
   );
 }
 
+function StatusIndicator({ message }: { message: Message }) {
+  if (message.sentByMe) {
+    if (message.isSending) {
+      return (
+        <span className="inline-flex items-center gap-0.5 text-white/70" title="Sending…">
+          <LucideClock size={9} className="animate-pulse" />
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center text-white/80" title="Sent">
+        <LucideCheck size={11} />
+      </span>
+    );
+  }
+  return null;
+}
+
 export default function MessageCellView({
   message,
 }: {
   message: Message;
 }): ReactElement {
   const replies = useReplies(message);
+  const [showActions, setShowActions] = useState(false);
   const time = new Date(message.sentAt).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
   });
 
+  const mine = message.sentByMe;
+
   return (
     <div
-      className={
-        message.sentByMe
-          ? "self-end flex flex-col max-w-[85%] sm:max-w-lg px-3.5 py-2.5 rounded-2xl rounded-br-md bg-gradient-to-br from-[#836ef9] to-[#7058f5] text-white shadow-chog"
-          : "self-start flex flex-col max-w-[85%] sm:max-w-lg px-3.5 py-2.5 rounded-2xl rounded-bl-md bg-[#161228] border border-[rgba(244,241,254,0.12)] text-[#f4f1fe] shadow-sm"
-      }
+      className={`group flex flex-col ${mine ? "self-end items-end" : "self-start items-start"} max-w-[85%] sm:max-w-[75%] lg:max-w-[65%]`}
+      onMouseEnter={() => setShowActions(true)}
+      onMouseLeave={() => setShowActions(false)}
     >
-      <div className="space-y-1.5 text-xs w-full">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <span className="text-[10px] font-bold flex items-center gap-1.5">
-            <span className={message.sentByMe ? "text-white/90" : "text-[#f4f1fe]/80 font-mono"}>
-              {message.sentByMe ? "You" : shortAddress(message.senderAddress)}
+      <div
+        className={
+          mine
+            ? "cl-bubble-in relative flex flex-col rounded-2xl rounded-br-md border border-white/10 bg-gradient-to-br from-[#836ef9] to-[#7058f5] px-3.5 py-2.5 text-white shadow-[0_6px_20px_-8px_rgba(131,110,249,0.7)] transition-transform duration-150 hover:-translate-y-px"
+            : "cl-bubble-in relative flex flex-col rounded-2xl rounded-bl-md border border-[rgba(244,241,254,0.12)] bg-[#161228] px-3.5 py-2.5 text-[#f4f1fe] shadow-[0_4px_16px_-10px_rgba(0,0,0,0.9)] transition-transform duration-150 hover:-translate-y-px"
+        }
+      >
+        <div className="space-y-1.5 text-xs w-full">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <span className="text-[10px] font-bold flex items-center gap-1.5">
+              <span className={mine ? "text-white/90" : "text-[#f4f1fe]/80 font-mono"}>
+                {mine ? "You" : shortAddress(message.senderAddress)}
+              </span>
+              {message.senderAddress && (
+                <SenderRank
+                  address={message.senderAddress}
+                  topic={message.conversationTopic}
+                />
+              )}
             </span>
-            {message.senderAddress && (
-              <SenderRank
-                address={message.senderAddress}
-                topic={message.conversationTopic}
-              />
-            )}
-          </span>
-          <span
-            className={`text-[9px] font-mono tabular-nums ${
-              message.sentByMe ? "text-white/65" : "text-[#f4f1fe]/50"
-            }`}
-          >
-            {time}
-            {message.isSending && " · sending…"}
-          </span>
-        </div>
-
-        <div className="text-sm font-normal break-words leading-relaxed">
-          <MessageContent message={message} />
-        </div>
-
-        {replies.length > 0 && (
-          <div className="py-1">
-            {replies.slice(-1).map((r) => (
-              <div
-                className={`flex flex-col text-xs rounded-xl rounded-tl-sm p-2 border-l-2 ${
-                  message.sentByMe
-                    ? "bg-black/20 text-white/90 border-white/25"
-                    : "bg-[#1e183a] text-[#f4f1fe]/80 border-[#836ef9]/40"
-                }`}
-                key={r.xmtpID}
-              >
-                <span className={`text-[9px] font-mono ${message.sentByMe ? "text-white/70" : "text-[#f4f1fe]/55"}`}>
-                  {shortAddress(r.senderAddress)}
-                </span>
-                <MessageContent message={r} />
-              </div>
-            ))}
+            <span
+              className={`text-[9px] font-mono tabular-nums flex items-center gap-1 ${
+                mine ? "text-white/65" : "text-[#f4f1fe]/50"
+              }`}
+            >
+              {time}
+              <StatusIndicator message={message} />
+            </span>
           </div>
-        )}
 
-        <div className="flex flex-row items-center gap-x-3 pt-0.5">
+          <div className="text-sm font-normal break-words leading-relaxed">
+            <MessageContent message={message} />
+          </div>
+
+          {replies.length > 0 && (
+            <div className="py-1">
+              {replies.slice(-1).map((r) => (
+                <div
+                  className={`flex flex-col text-xs rounded-xl rounded-tl-sm p-2 border-l-2 ${
+                    mine
+                      ? "bg-black/20 text-white/90 border-white/25"
+                      : "bg-[#1e183a] text-[#f4f1fe]/80 border-[#836ef9]/40"
+                  }`}
+                  key={r.xmtpID}
+                >
+                  <span className={`text-[9px] font-mono ${mine ? "text-white/70" : "text-[#f4f1fe]/55"}`}>
+                    {shortAddress(r.senderAddress)}
+                  </span>
+                  <MessageContent message={r} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Actions surface — always in flow so reactions stay discoverable */}
+        <div
+          className={`mt-1 flex flex-row items-center gap-x-2 transition-opacity duration-150 ${
+            showActions || replies.length > 0 ? "opacity-100" : "opacity-70"
+          }`}
+        >
           <ReactionsView message={message} />
         </div>
       </div>
+
+      {mine && message.isSending && (
+        <span className="mt-0.5 pr-1 font-mono text-[9px] text-[#f4f1fe]/35">
+          sending…
+        </span>
+      )}
     </div>
   );
 }
