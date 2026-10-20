@@ -1,6 +1,6 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { PropsWithChildren, ReactElement, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useClient } from "../hooks/useClient";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../model/db";
@@ -18,6 +18,9 @@ export default function Header({
   const { isDemo } = useClientStatus();
   const [showRankModal, setShowRankModal] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+  /** Marketing/login screens never show points — you haven't earned them yet. */
+  const onEntryRoute = ["/", "/login"].includes(location.pathname);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -46,26 +49,32 @@ export default function Header({
         <div className="px-4 sm:px-6 h-14 flex gap-3 justify-between items-center max-w-5xl mx-auto">
           <Link
             to="/"
-            className="my-auto text-lg font-extrabold text-[#f4f1fe] flex items-center gap-2.5 tracking-tight group shrink-0"
+            className="my-auto flex items-center gap-2.5 shrink-0 tracking-tight group no-underline"
+            title="Chuglife"
           >
             {/* Real Chog avatar as the app icon */}
-            <span className="relative w-8 h-8 rounded-[10px] overflow-hidden ring-1 ring-[#836ef9]/50 group-hover:ring-[#836ef9] group-hover:scale-105 transition-all duration-200 bg-[#0c0c12] shadow-[0_0_12px_-4px_rgba(131,110,249,0.6)] shrink-0">
+            <span className="relative w-9 h-9 rounded-[12px] overflow-hidden ring-2 ring-[#836ef9]/60 group-hover:ring-[#5ce68a] group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 bg-[#14121f] shadow-[0_0_18px_-2px_rgba(131,110,249,0.6)] shrink-0">
               <img
-                src="chog-app-icon.webp"
+                src="/chog-app-icon.webp"
                 alt="Choglife"
                 className="absolute inset-0 h-full w-full object-cover"
                 width={250}
                 height={250}
               />
             </span>
-            <span className="leading-none text-[15px] font-extrabold tracking-tight">
-              Chuglife
+            <span className="relative leading-none flex items-baseline select-none">
+              <span className="cl-wordmark group-hover:tracking-widest transition-all duration-300">
+                Chug
+              </span>
+              <span className="cl-wordmark-clash group-hover:translate-x-0.5 transition-all duration-300">
+                life
+              </span>
             </span>
           </Link>
 
           <div className="flex items-center gap-2 min-w-0">
-            {/* Rank chip — opens the ladder */}
-            {activity && rank && (
+            {/* Rank chip — opens the ladder (never on entry screens) */}
+            {!onEntryRoute && activity && rank && (
               <button
                 type="button"
                 onClick={() => setShowRankModal(true)}

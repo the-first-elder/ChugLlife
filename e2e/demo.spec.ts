@@ -2,8 +2,6 @@ import { test, expect, type BrowserContext, type Page } from "@playwright/test";
 
 const KEY_A =
   "0x1111111111111111111111111111111111111111111111111111111111111111" as const;
-const KEY_B =
-  "0x2222222222222222222222222222222222222222222222222222222222222222" as const;
 
 async function startDemoUser(
   context: BrowserContext,
@@ -47,12 +45,12 @@ test("landing page renders the vibe pitch", async ({ page }) => {
     /Your Chog is/i
   );
   await expect(page.getByText(/vibe-dating/i)).toBeVisible();
-  const demoLink = page.getByRole("link", { name: /Try the demo/i });
-  await expect(demoLink).toBeVisible();
-  await demoLink.click();
-  await expect(
-    page.getByRole("button", { name: /Try the Chug(life|Match) demo/i })
-  ).toBeVisible();
+  const demoCta = page.getByTestId("hero-cta-demo");
+  await expect(demoCta).toBeVisible();
+  await demoCta.click();
+  // Demo CTA now starts the trial directly and lands in the app
+  await expect(page).toHaveURL(/\/conversations/);
+  await expect(page.getByRole("button", { name: /Try the Chug(life|Match) demo/i })).toBeVisible();
 });
 
 test("demo mode signs in and lists chogmates", async ({ browser }) => {

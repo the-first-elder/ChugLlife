@@ -94,7 +94,13 @@ const Match: React.FC = () => {
       {needsWallet && (
         <div className="cl-card cl-card-glow cl-fade-in mt-8 p-8 max-w-md mx-auto text-center">
           <div className="relative z-10">
-            <div className="text-4xl mb-2">🐸</div>
+            <img
+              src="/chog-app-icon.webp"
+              alt="Choglife"
+              width={56}
+              height={56}
+              className="w-14 h-14 mx-auto mb-3 rounded-2xl ring-2 ring-[#836ef9]/60 shadow-[0_0_18px_-2px_rgba(131,110,249,0.6)] transition-transform duration-300 hover:scale-105 hover:-rotate-3"
+            />
             <p className="font-extrabold text-[#f4f1fe]">
               Connect your Monad wallet
             </p>

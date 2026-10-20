@@ -138,6 +138,21 @@ export interface RoomMute {
   mutedUntil?: number;
 }
 
+/**
+ * Demo mode runs on a fully separate local database. Chats, points, rooms and
+ * shop purchases made in demo never touch the wallet's real session — mode
+ * switches reload the page so `db` re-opens under the right name.
+ */
+export const DEMO_KEY_STORAGE = "_chugDemoPrivateKey";
+
+export function dbModeName(): string {
+  try {
+    return localStorage.getItem(DEMO_KEY_STORAGE) ? "DB-demo" : "DB";
+  } catch {
+    return "DB";
+  }
+}
+
 class DB extends Dexie {
   conversations!: Dexie.Table<Conversation, number>;
   messages!: Dexie.Table<Message, number>;
@@ -152,7 +167,7 @@ class DB extends Dexie {
   roomMutes!: Dexie.Table<RoomMute, string>;
 
   constructor() {
-    super("DB");
+    super(dbModeName());
     this.version(2).stores({
       conversations: `
         ++id,

@@ -4,17 +4,17 @@ import { shortAddress } from "../util/shortAddress";
 import ReactTimeAgo from "react-time-ago";
 import { MessageContent } from "./MessageCellView";
 import { useParams } from "react-router-dom";
+import { useLiveQuery } from "dexie-react-hooks";
+import db from "../model/db";
 import { LucideUsersRound, LucideChevronRight } from "lucide-react";
-
-function avatarLabel(conversation: Conversation): string {
-  const title = isRoom(conversation)
-    ? conversation.title || "Room"
-    : shortAddress(conversation.peerAddress);
-  return (title.replace(/[^a-zA-Z0-9]/g, "")[0] || "C").toUpperCase();
-}
 
 function isRoom(conversation: Conversation): boolean {
   return conversation.peerAddress === "";
+}
+
+/** DMs keep a short-address initial; rooms are handled by roomMeta. */
+function avatarInitial(address: string): string {
+  return (shortAddress(address).replace(/[^a-zA-Z0-9]/g, "")[0] || "C").toUpperCase();
 }
 
 export default function ConversationCellView({
@@ -27,6 +27,11 @@ export default function ConversationCellView({
   const { conversationTopic } = useParams();
   const active = conversation?.topic === conversationTopic;
   const room = isRoom(conversation);
+  /** Rooms show their emoji badge — never the broken "C" fallback. */
+  const roomMeta = useLiveQuery(
+    () => db.rooms.get(conversation.topic),
+    [conversation.topic]
+  );
 
   return (
     <div
@@ -46,7 +51,9 @@ export default function ConversationCellView({
               : "bg-gradient-to-tr from-[#5ce68a]/25 to-[#836ef9]/15 text-[#5ce68a] border border-[#5ce68a]/30"
           }`}
         >
-          {avatarLabel(conversation)}
+          {room
+            ? (roomMeta?.emoji ?? "🐸")
+            : avatarInitial(conversation.peerAddress)}
         </span>
         <span
           className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#12101f] ${

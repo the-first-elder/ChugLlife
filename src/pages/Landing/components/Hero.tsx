@@ -1,5 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useClient, useClientStatus } from "../../../hooks/useClient";
 import {
   LucideFlame,
   LucideUsers,
@@ -61,6 +63,11 @@ const STEPS = [
 ];
 
 export const Hero = () => {
+  const navigate = useNavigate();
+  const client = useClient();
+  const { startDemo, isDemo } = useClientStatus();
+  const signedIn = !!client || isDemo;
+
   return (
     <main className="relative bg-[#000000] text-[#f4f1fe] overflow-hidden">
       {/* Ambient glows */}
@@ -103,26 +110,58 @@ export const Hero = () => {
 
               {/* CTAs */}
               <div className="flex gap-3 mt-8 flex-wrap">
-                <Link
-                  to="/login"
-                  data-testid="hero-cta-match"
-                  className="cl-btn cl-btn-primary cl-btn-md group cl-pulse-ring"
-                >
-                  Start vibing
-                  <LucideArrowRight
-                    size={18}
-                    className="cl-nudge"
-                  />
-                </Link>
-                <Link
-                  to="/login"
+                {signedIn ? (
+                  <Link
+                    to="/conversations"
+                    data-testid="hero-cta-match"
+                    className="cl-btn cl-btn-primary cl-btn-md group cl-pulse-ring"
+                  >
+                    Start vibing
+                    <LucideArrowRight
+                      size={18}
+                      className="cl-nudge"
+                    />
+                  </Link>
+                ) : (
+                  <ConnectButton.Custom>
+                    {({ openConnectModal: openModal }) => (
+                      <button
+                        type="button"
+                        data-testid="hero-cta-match"
+                        onClick={() => {
+                          if (openModal) openModal();
+                          else navigate("/login");
+                        }}
+                        className="cl-btn cl-btn-primary cl-btn-md group cl-pulse-ring"
+                      >
+                        Start vibing
+                        <LucideArrowRight
+                          size={18}
+                          className="cl-nudge"
+                        />
+                      </button>
+                    )}
+                  </ConnectButton.Custom>
+                )}
+                <button
+                  type="button"
                   data-testid="hero-cta-demo"
+                  onClick={() => {
+                    if (!signedIn) startDemo();
+                    else navigate("/conversations");
+                  }}
                   className="cl-btn cl-btn-ghost cl-btn-md"
                 >
                   <LucideMessageCircle size={17} className="text-[#5ce68a]" />
-                  Try the demo
-                </Link>
+                  {signedIn ? "Enter Chuglife" : "Try the demo"}
+                </button>
               </div>
+              {!signedIn && (
+                <p className="mt-2.5 text-[11px] font-mono text-[#f4f1fe]/40">
+                  connect your wallet to use the real app · demo is a trial only —
+                  chats &amp; points stay out of the real app
+                </p>
+              )}
 
               {/* Trust row */}
               <div className="mt-7 flex items-center gap-2.5 flex-wrap">

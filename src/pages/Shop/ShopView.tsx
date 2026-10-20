@@ -217,12 +217,6 @@ export default function ShopView(): ReactElement {
             <LucideShieldCheck size={13} /> Paid in MON · settles on Monad
           </span>
         </div>
-
-        {!treasury && (
-          <p className="relative z-10 mt-3 font-mono text-[11px] text-[#f59e0b]/80">
-            Checkout offline: set VITE_SHOP_TREASURY in .env to accept payments.
-          </p>
-        )}
       </div>
 
       {checkoutMsg && (
@@ -339,11 +333,9 @@ export default function ShopView(): ReactElement {
                       <LucideCoins size={14} />
                       {payingMon
                         ? "Confirming…"
-                        : !treasury
-                          ? "MON checkout offline"
-                          : !hasWallet
-                            ? "Connect wallet for MON"
-                            : `Pay ${item.price} MON`}
+                        : !hasWallet
+                          ? "Connect wallet for MON"
+                          : `Pay ${item.price} MON`}
                     </button>
                     {/* Or spend earned Chug Points */}
                     <button

@@ -26,6 +26,14 @@
 html {
   scroll-behavior: smooth;
 }
+/* Smooth scrolling everywhere — page, chat rails, lists, back-to-top jumps.
+   Users who opt out via reduced-motion keep instant jumps. */
+@media (prefers-reduced-motion: no-preference) {
+  body,
+  body * {
+    scroll-behavior: smooth;
+  }
+}
 body {
   background-color: #100e1a;
   background-image:
@@ -453,8 +461,27 @@ a[data-navigation] {
   background-size: 22px 22px;
 }
 
-/* Live presence dot */
-@keyframes cl-dot-pulse {
+/* Navbar wordmark — bold, loud, gradient-on-the-move */
+.cl-wordmark {
+  font-weight: 900;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  background: linear-gradient(92deg, #a99bfc 0%, #836ef9 45%, #5ce68a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 0 14px rgba(131, 110, 249, 0.35));
+}
+.cl-wordmark-clash {
+  font-weight: 900;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  color: #5ce68a;
+  text-shadow: 0 0 18px rgba(92, 230, 138, 0.45);
+}
+
+/* Live presence dot */@keyframes cl-dot-pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(92, 230, 138, 0.55);
   }

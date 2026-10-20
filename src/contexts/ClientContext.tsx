@@ -14,11 +14,10 @@ import {
 import { useAccount, useWalletClient } from "wagmi";
 import { heartbeat, applyDemoGrant } from "../model/activity";
 import { clientAddress as clientAddressFor } from "../model/conversations";
+import { DEMO_KEY_STORAGE } from "../model/db";
 import { hexToBytes } from "viem";
 import { Wallet } from "ethers";
 import { LucideX } from "lucide-react";
-
-const DEMO_KEY_STORAGE = "_chugDemoPrivateKey";
 
 /**
  * XMTP stores its SQLite db in OPFS, which only allows one open connection per
@@ -205,6 +204,8 @@ export default function ClientProvider({
       setIsDemo(false);
       setClient(null);
       setStatus("idle");
+      // Demo ran on DB-demo — reload so real mode opens the real database.
+      window.setTimeout(() => window.location.reload(), 30);
       return;
     }
     if (isDemo) return;
@@ -345,7 +346,7 @@ export default function ClientProvider({
         const msg = e instanceof Error ? e.message : String(e);
         if (/already registered .* installations/i.test(msg)) {
           console.warn("Demo inbox out of installations — rotating demo key");
-          indexedDB.deleteDatabase("DB");
+          indexedDB.deleteDatabase("DB-demo");
           try {
             const rotated = freshKey();
             const newClient = await createDemoClient(rotated);
@@ -399,6 +400,9 @@ export default function ClientProvider({
     if (switchingIdentity) closeOtherClients();
     setClient(null);
     setIsDemo(true);
+    // Demo runs on DB-demo — full reload so the local database re-opens in
+    // demo mode and demo chats/points stay out of the real app.
+    window.setTimeout(() => window.location.assign("/conversations"), 30);
   }
 
   useEffect(() => {
@@ -428,6 +432,8 @@ export default function ClientProvider({
     clientCache.current.clear();
     demoLock.current.clear();
     createLock.current.clear();
+    // Back to the real database — reload so the wallet's demo-free state loads.
+    window.setTimeout(() => window.location.assign("/login"), 30);
   }
 
   const value: ClientStatus = {
