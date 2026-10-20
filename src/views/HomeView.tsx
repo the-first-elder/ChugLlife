@@ -13,6 +13,7 @@ import RankLadderModal from "../components/RankLadderModal";
 import PeerAvatar from "./PeerAvatar";
 import { Link, useNavigate } from "react-router-dom";
 import ChogBackdrop from "../components/ChogBackdrop";
+import LoginView from "./LoginView";
 import {
   LucideCoins,
   LucideCopy,
@@ -45,6 +46,11 @@ export default function HomeView(): ReactElement {
   const { rank, pct, next } = activity
     ? rankProgress(activity.chatPoints + activity.presencePoints)
     : { rank: undefined, pct: 0, next: undefined };
+
+  // No signed-in identity (wallet or demo) → never render stats/points.
+  if (!client) {
+    return <LoginView />;
+  }
 
   async function logout() {
     if (isDemo) {

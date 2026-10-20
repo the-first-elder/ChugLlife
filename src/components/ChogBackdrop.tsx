@@ -59,7 +59,7 @@ export default function ChogBackdrop({
         right: side ? undefined : `${Math.floor(rand() * 30)}%`,
         size,
         rotate: Math.floor(rand() * 36 - 18),
-        opacity: (faint ? 0.05 : 0.09) + rand() * (faint ? 0.05 : 0.09),
+        opacity: (faint ? 0.16 : 0.3) + rand() * (faint ? 0.08 : 0.16),
         blur: rand() > 0.65 ? 1.5 : 0,
         chogIndex: Math.floor(rand() * chogs.length),
       };
@@ -91,8 +91,10 @@ export default function ChogBackdrop({
           <ChogImage image={chogs[s.chogIndex]?.image ?? ""} alt="" className="h-full w-full object-cover" />
         </div>
       ))}
-      {/* readability veil — content always wins over the collage */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/85" />
+      {/* readability veil — content always wins over the collage */
+      }
+      {/* much lighter now so the Chog NFT collage actually shows through */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#100e1a]/10 via-[#100e1a]/20 to-[#100e1a]/45" />
     </div>
   );
 }

@@ -196,6 +196,17 @@ export default function ClientProvider({
 
   /** Wallet path. */
   useEffect(() => {
+    // A real wallet always wins over a lingering demo identity — otherwise
+    // the stored demo key keeps forcing demo mode after connecting.
+    if (address && walletClient && isDemo) {
+      localStorage.removeItem(DEMO_KEY_STORAGE);
+      closeOtherClients();
+      releaseTabLock();
+      setIsDemo(false);
+      setClient(null);
+      setStatus("idle");
+      return;
+    }
     if (isDemo) return;
     if (!address || !walletClient) {
       // Wallet gone: tear the session down and hand the OPFS lock back.
@@ -320,6 +331,9 @@ export default function ClientProvider({
         }
 
         const newClient = await pending;
+        // The demo identity can be revoked mid-flight (wallet connected) —
+        // never surface a demo client for a wallet session.
+        if (localStorage.getItem(DEMO_KEY_STORAGE) !== key) return;
         clientCache.current.set(cacheId, newClient);
         setClient(newClient);
         setStatus("ready");
@@ -335,6 +349,7 @@ export default function ClientProvider({
           try {
             const rotated = freshKey();
             const newClient = await createDemoClient(rotated);
+            if (localStorage.getItem(DEMO_KEY_STORAGE) !== rotated) return;
             clientCache.current.set(`demo-${rotated}`, newClient);
             setClient(newClient);
             setStatus("ready");

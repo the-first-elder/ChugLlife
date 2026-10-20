@@ -16,7 +16,6 @@ import ConversationListView from "./ConversationListView";
 import PeerAvatar from "./PeerAvatar";
 import ChogBackdrop from "../components/ChogBackdrop";
 import RoomMembersRail from "./RoomMembersRail";
-import { LucideUsers, LucideX } from "lucide-react";
 import { CHOG_NFT_ADDRESS } from "../util/monad";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../model/db";
@@ -126,7 +125,7 @@ export default function ConversationView({
   }
 
   return (
-    <section className="mx-auto flex w-full max-w-6xl flex-row justify-center border-x border-[rgba(244,241,254,0.08)] bg-[#000000] text-[#f4f1fe]">
+    <section className="mx-auto flex w-full max-w-6xl flex-row justify-center border-x border-[rgba(244,241,254,0.08)] text-[#f4f1fe]">
       {/* Desktop Sidebar */}
       <div className="hidden md:block w-full max-w-xs p-4 space-y-3 bg-[#08080d] border-r border-[rgba(244,241,254,0.08)]">
         <div className="flex items-center justify-between gap-2 py-1">
@@ -142,7 +141,7 @@ export default function ConversationView({
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex flex-col w-full h-[calc(100dvh-3.5rem-env(safe-area-inset-top))] bg-[#000000]">
+      <div className="flex flex-col w-full h-[calc(100dvh-3.5rem-env(safe-area-inset-top))]">
         <header className="z-40 px-4 py-3 shrink-0 bg-[#08080d]/90 backdrop-blur-xl border-b border-[rgba(244,241,254,0.08)]">
           <div className="flex justify-between items-center gap-2 font-bold">
             <Link

@@ -13,6 +13,9 @@ import {
   LucideUsers,
 } from "lucide-react";
 
+/** Starter rooms carry fake owner addresses (0x000…0001) — don't roster them. */
+const PLACEHOLDER_OWNER = /^0x0{39}[0-9a-f]$/;
+
 /**
  * Right-hand roster for a room: member count, NFT avatars, wallet addresses
  * and rank/role badges. Also usable for DMs (shows just the peer).
@@ -37,24 +40,34 @@ export default function RoomMembersRail({
     if (!isRoom || !client) return;
     let cancelled = false;
     (async () => {
+      let list: string[] = [];
       try {
-        const group = await getXMTPGroup(
-          client,
-          conversation
-        );
-        const list = await memberAddresses(group);
-        if (!cancelled) {
-          setAddresses(list.map((m) => m.address || undefined));
-          setError(undefined);
-        }
-      } catch (e) {
-        if (!cancelled) setError((e as Error).message.slice(0, 80));
+        const group = await getXMTPGroup(client, conversation);
+        list = (await memberAddresses(group))
+          .map((m) => m.address)
+          .filter((a): a is string => !!a);
+      } catch {
+        // Local/starter rooms have no XMTP group behind them — fall back to
+        // the roster we know locally (me + the room owner) instead of erroring.
       }
+      if (cancelled) return;
+
+      const fallback: string[] = [];
+      if (me) fallback.push(me);
+      if (room?.owner && !PLACEHOLDER_OWNER.test(room.owner)) {
+        fallback.push(room.owner);
+      }
+      const merged = [...new Set([...list, ...fallback])];
+
+      setAddresses(merged);
+      // We always have at least ourselves locally — never show a scary
+      // "room not found on XMTP" banner for local/demo rooms.
+      setError(undefined);
     })();
     return () => {
       cancelled = true;
     };
-  }, [client, conversation.topic, isRoom]);
+  }, [client, conversation, isRoom, me, room?.owner]);
 
   const rows: { address: string; isMe: boolean }[] = isRoom
     ? addresses

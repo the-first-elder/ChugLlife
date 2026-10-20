@@ -51,7 +51,7 @@ export default function LoginView(): ReactElement {
   }, [client, navigate]);
 
   return (
-    <div className="min-h-[calc(100vh-140px)] flex items-center justify-center p-4 sm:p-6 bg-[#000000]">
+    <div className="min-h-[calc(100vh-140px)] flex items-center justify-center p-4 sm:p-6">
       <div className="cl-card cl-card-glow p-6 sm:p-10 max-w-lg w-full text-[#f4f1fe]">
         {/* Ambient glow spots */}
         <div className="absolute -top-16 -right-16 w-56 h-56 bg-[#836ef9]/20 rounded-full blur-3xl pointer-events-none" />
