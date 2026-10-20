@@ -33,7 +33,7 @@ export default function ConversationCellView({
       className={`group flex items-center gap-3.5 px-4 py-3 rounded-2xl transition cursor-pointer active:scale-[0.98] ${
         active
           ? "bg-[#836ef9]/15 ring-1 ring-[#836ef9]/60"
-          : "bg-[#161228]/70 hover:bg-[#1e183a] ring-1 ring-transparent"
+          : "bg-[#0c0c12]/70 hover:bg-[#14141b] ring-1 ring-transparent"
       }`}
       data-testid="conversation-cell"
     >

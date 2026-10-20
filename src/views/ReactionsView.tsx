@@ -1,12 +1,18 @@
 import { ReactElement, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
 import { Message, MessageReaction } from "../model/db";
+import db from "../model/db";
 import { useReactions } from "../hooks/useReactions";
 import { addReaction, removeReaction } from "../model/reactions";
 import { useClient } from "../hooks/useClient";
 import { clientAddress } from "../model/conversations";
+import { ownsItem } from "../model/activity";
+import { sfx } from "../util/sfx";
 import { LucideSmilePlus } from "lucide-react";
 
 const defaultReactions = ["👍", "❤️", "🎉", "🐸", "😂"] as const;
+/** Unlocked by the Chog Reaction Pack in the Shop. */
+const megaReactions = ["🚀", "💎", "🔥", "👑", "🐸"] as const;
 
 function ReactionPill({
   myAddress,
@@ -26,7 +32,10 @@ function ReactionPill({
   return (
     <button
       type="button"
-      onClick={() => (mine ? onRemove() : onAdd())}
+      onClick={() => {
+        sfx.react();
+        mine ? onRemove() : onAdd();
+      }}
       aria-pressed={mine}
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-[3px] text-[11px] font-bold leading-none transition active:scale-90 ${
         mine
@@ -51,6 +60,14 @@ export default function ReactionsView({
   const reactions = useReactions(message) || [];
   const [isReacting, setIsReacting] = useState(false);
 
+  const myActivity = useLiveQuery(
+    () => (myAddress ? db.activity.get(myAddress) : undefined),
+    [myAddress]
+  );
+  const picker = ownsItem(myActivity, "mega-reactions")
+    ? [...defaultReactions, ...megaReactions]
+    : defaultReactions;
+
   const reactionsByName = reactions.reduce((acc, curr) => {
     if (acc[curr.name]) {
       acc[curr.name]?.push(curr);
@@ -74,14 +91,15 @@ export default function ReactionsView({
       ))}
 
       {isReacting ? (
-        <div className="cl-pop flex items-center gap-1.5 rounded-full border border-[#836ef9]/30 bg-[#1b1533] px-2 py-1">
-          {defaultReactions.map((emoji) => {
+        <div className="cl-pop flex items-center gap-1.5 rounded-full border border-[#836ef9]/30 bg-[#0d0d13] px-2 py-1">
+          {picker.map((emoji) => {
             if (reactionsByName[emoji]) return null;
             return (
               <button
                 type="button"
                 key={emoji}
                 onClick={() => {
+                  sfx.react();
                   addReaction(emoji as string, message, client);
                   setIsReacting(false);
                 }}

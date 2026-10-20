@@ -5,12 +5,35 @@ import { saveMessageFromNetwork, XmtpMessage } from "../model/messages";
 import { XmtpDm } from "../model/conversations";
 import db, { Conversation, Message } from "../model/db";
 import { useLiveQuery } from "dexie-react-hooks";
+import { liveQuery } from "dexie";
+import { sfx } from "../util/sfx";
 
 /**
  * Messages of a conversation: loaded from the network on mount, then live.
  */
 export function useMessages(conversation: Conversation): Message[] | undefined {
   const client = useClient();
+
+  // Soft ping whenever someone else lands a message in this thread
+  useEffect(() => {
+    const seen = new Set<string>();
+    let primed = false;
+    const sub = liveQuery(async () =>
+      db.messages
+        .where("[conversationTopic+inReplyToID]")
+        .equals([conversation.topic, ""])
+        .toArray()
+    ).subscribe((msgs) => {
+      if (!msgs) return;
+      for (const m of msgs) {
+        if (seen.has(m.xmtpID)) continue;
+        seen.add(m.xmtpID);
+        if (primed && !m.sentByMe && !m.isSending) sfx.receive();
+      }
+      primed = true;
+    });
+    return () => sub.unsubscribe();
+  }, [conversation.topic]);
 
   useEffect(() => {
     if (!client) return;

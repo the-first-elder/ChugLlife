@@ -9,6 +9,7 @@ import { useClientStatus } from "../../hooks/useClient";
 import { LucideHeartHandshake, LucideSparkles, LucideArrowRight } from "lucide-react";
 import { chogScanUrl } from "../../model/chog-portal";
 import Skeleton from "../../components/Skeleton";
+import ChogBackdrop from "../../components/ChogBackdrop";
 
 /** Compact trait chip shared by every chog card. */
 const TRAIT_CHIP_CLS =
@@ -57,7 +58,8 @@ const Match: React.FC = () => {
   const needsWallet = !isConnected && !isDemo;
 
   return (
-    <div className="text-[#f4f1fe] max-w-6xl mx-auto p-4 pt-8 pb-28 min-h-[60vh]">
+    <div className="relative z-10 text-[#f4f1fe] max-w-6xl mx-auto p-4 pt-8 pb-28 min-h-[60vh]">
+      <ChogBackdrop seed="match" />
       <header className="cl-fade-in text-center">
         <span className="flex h-12 w-12 items-center justify-center mx-auto mb-4 rounded-2xl border border-[#836ef9]/30 bg-[#836ef9]/15 text-[#836ef9] shadow-chog-sm">
           <LucideHeartHandshake size={24} />
@@ -112,7 +114,7 @@ const Match: React.FC = () => {
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="overflow-hidden rounded-3xl">
               <Skeleton className="aspect-square !rounded-none" rounded="" />
-              <div className="p-3 bg-[#161228] border border-t-0 border-white/10 rounded-b-3xl">
+              <div className="p-3 bg-[#0c0c12] border border-t-0 border-white/10 rounded-b-3xl">
                 <Skeleton className="h-3.5 w-3/4" rounded="rounded-full" />
                 <Skeleton className="h-3 w-1/2 mt-2" rounded="rounded-full" />
               </div>
@@ -167,13 +169,13 @@ const Match: React.FC = () => {
               key={chog.tokenId}
               className="group cl-card overflow-hidden flex flex-col transition duration-200 hover:-translate-y-1 hover:border-[#836ef9]/50 hover:shadow-chog"
             >
-              <div className="relative aspect-square bg-[#141026] flex items-center justify-center overflow-hidden">
+              <div className="relative aspect-square bg-[#08080d] flex items-center justify-center overflow-hidden">
                 <ChogImage
                   image={chog.image}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   alt={chog.name}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0e0b1a]/85 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-3">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/85 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-3">
                   <span className="cl-chip !bg-[#836ef9]/90 !border-transparent !text-white font-bold">
                     View matches →
                   </span>

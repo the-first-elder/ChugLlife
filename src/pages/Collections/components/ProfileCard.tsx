@@ -17,7 +17,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ address, chogs, error }) => {
     <section className="cl-card cl-card-glow cl-fade-in flex flex-col grow px-6 py-8 w-full text-base">
       <div className="relative z-10 flex flex-col grow">
         <div
-          className={`self-center w-[120px] aspect-square rounded-2xl overflow-hidden bg-[#141026] border shadow-chog-glow flex items-center justify-center transition-shadow duration-300 ${
+          className={`self-center w-[120px] aspect-square rounded-2xl overflow-hidden bg-[#08080d] border shadow-chog-glow flex items-center justify-center transition-shadow duration-300 ${
             firstChog
               ? "border-[#836ef9]/50 shadow-[0_0_24px_-6px_rgba(131,110,249,0.5)]"
               : "border-[#836ef9]/30"
@@ -42,7 +42,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ address, chogs, error }) => {
         </span>
 
         <h3 className="cl-section-title self-center mt-6">Chog stats</h3>
-        <div className="cl-card-flat mt-3 bg-[#141026] p-3">
+        <div className="cl-card-flat mt-3 bg-[#08080d] p-3">
           <StatItem label="Chogs held" value={chogs?.length ?? 0} />
           <StatItem label="Traits displayed" value={traitCount} />
           <StatItem label="Rarest slots" value={rareTraits} />

@@ -10,6 +10,7 @@ import {
 } from "../../model/chog-portal";
 import { CHOG_NFT_ADDRESS } from "../../util/monad";
 import { useAccount } from "wagmi";
+import ChogBackdrop from "../../components/ChogBackdrop";
 
 interface HolderCard {
   address: string;
@@ -117,10 +118,11 @@ const Explore = () => {
   const hasFilters = activeValue !== "All" || query.trim().length > 0;
 
   return (
-    <div className="text-[#f4f1fe] min-h-[60vh] pb-28">
+    <div className="relative z-10 text-[#f4f1fe] min-h-[60vh] pb-28">
+      <ChogBackdrop seed="explore" />
       {/* Search + facets toolbar */}
       <div
-        className="sticky z-30 pt-4 pb-3 bg-[#0e0b1a]/85 backdrop-blur-xl border-b border-white/5"
+        className="sticky z-30 pt-4 pb-3 bg-[#000000]/85 backdrop-blur-xl border-b border-white/5"
         style={{ top: "calc(3.5rem + env(safe-area-inset-top))" }}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-3">
@@ -284,7 +286,7 @@ const Explore = () => {
                   key={`${card.address}-${card.tokenId}`}
                   className="group cl-card overflow-hidden flex flex-col transition duration-200 hover:-translate-y-1 hover:border-[#836ef9]/40 hover:shadow-chog"
                 >
-                  <div className="aspect-square bg-[#141026] overflow-hidden">
+                  <div className="aspect-square bg-[#08080d] overflow-hidden">
                     <ChogImage
                       image={card.image}
                       alt={card.name}

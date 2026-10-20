@@ -86,7 +86,7 @@ const MatchList = () => {
       </h1>
 
       {error && (
-        <div className="bg-[#161228] border border-red-500/20 rounded-2xl shadow-chog-sm p-6 max-w-lg mx-auto text-center">
+        <div className="bg-[#0c0c12] border border-red-500/20 rounded-2xl shadow-chog-sm p-6 max-w-lg mx-auto text-center">
           <p className="text-red-400 text-sm font-bold">Matching unavailable</p>
           <p className="text-xs text-[#f4f1fe]/60 mt-1 whitespace-pre-wrap">{error}</p>
           <p className="text-xs text-[#f4f1fe]/60 mt-2">
@@ -99,11 +99,11 @@ const MatchList = () => {
 
       {mine && cards === null && !error && (
         <div className="max-w-md mx-auto mt-12">
-          <div className="rounded-2xl overflow-hidden shadow-chog-sm bg-[#161228] border border-white/10">
+          <div className="rounded-2xl overflow-hidden shadow-chog-sm bg-[#0c0c12] border border-white/10">
             <ChogImage image={mine.image} alt={mine.name} className="w-full aspect-square object-cover" />
             <div className="p-4">
               <p className="font-bold text-sm text-[#f4f1fe]">{mine.name}</p>
-              <div className="h-2 mt-3 bg-[#141026] rounded-full overflow-hidden border border-white/10">
+              <div className="h-2 mt-3 bg-[#08080d] rounded-full overflow-hidden border border-white/10">
                 <div
                   className="h-full bg-gradient-to-r from-[#836ef9] to-[#5ce68a] rounded-full transition-all"
                   style={{ width: `${progress}%` }}
@@ -129,9 +129,9 @@ const MatchList = () => {
           {cards.map((card) => (
             <div
               key={`${card.address}-${card.tokenId}`}
-              className="bg-[#161228] rounded-2xl overflow-hidden shadow-chog-sm border border-white/10 hover:border-[#836ef9]/40 flex flex-col transition"
+              className="bg-[#0c0c12] rounded-2xl overflow-hidden shadow-chog-sm border border-white/10 hover:border-[#836ef9]/40 flex flex-col transition"
             >
-              <div className="relative aspect-square bg-[#141026]">
+              <div className="relative aspect-square bg-[#08080d]">
                 <ChogImage
                   image={card.image}
                   className="w-full aspect-square object-cover"
@@ -142,8 +142,8 @@ const MatchList = () => {
                     card.vibe.score >= 70
                       ? "bg-[#836ef9] text-white"
                       : card.vibe.score >= 40
-                        ? "bg-[#5ce68a] text-[#0e0b1a]"
-                        : "bg-[#141026] text-[#f4f1fe]/70 border border-white/15"
+                        ? "bg-[#5ce68a] text-[#000000]"
+                        : "bg-[#08080d] text-[#f4f1fe]/70 border border-white/15"
                   }`}
                   data-testid="vibe-score"
                 >

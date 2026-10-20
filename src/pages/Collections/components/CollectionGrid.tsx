@@ -19,7 +19,7 @@ const CollectionGrid: React.FC<CollectionGridProps> = ({
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="overflow-hidden rounded-3xl">
               <Skeleton className="aspect-square !rounded-none" rounded="" />
-              <div className="p-3 bg-[#161228] border border-t-0 border-white/10 rounded-b-3xl">
+              <div className="p-3 bg-[#0c0c12] border border-t-0 border-white/10 rounded-b-3xl">
                 <Skeleton className="h-3.5 w-3/4" rounded="rounded-full" />
                 <Skeleton className="h-3 w-1/2 mt-2" rounded="rounded-full" />
               </div>
@@ -44,7 +44,7 @@ const CollectionGrid: React.FC<CollectionGridProps> = ({
               key={item.tokenId}
               className="group cl-card overflow-hidden flex flex-col transition duration-200 hover:-translate-y-1 hover:border-[#836ef9]/40 hover:shadow-chog"
             >
-              <div className="aspect-square bg-[#141026] overflow-hidden">
+              <div className="aspect-square bg-[#08080d] overflow-hidden">
                 <ChogImage
                   image={item.image}
                   alt={item.name}

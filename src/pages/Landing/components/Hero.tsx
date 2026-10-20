@@ -62,7 +62,7 @@ const STEPS = [
 
 export const Hero = () => {
   return (
-    <main className="relative bg-[#0e0b1a] text-[#f4f1fe] overflow-hidden">
+    <main className="relative bg-[#000000] text-[#f4f1fe] overflow-hidden">
       {/* Ambient glows */}
       <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#836ef9]/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-40 -right-32 w-96 h-96 bg-[#5ce68a]/12 rounded-full blur-3xl pointer-events-none" />
@@ -140,7 +140,7 @@ export const Hero = () => {
               <div className="absolute -inset-4 bg-gradient-to-tr from-[#836ef9]/30 to-[#5ce68a]/20 rounded-[2rem] blur-2xl pointer-events-none" />
 
               {/* main chog — gentle float */}
-              <div className="cl-float relative rounded-[2rem] overflow-hidden border border-[rgba(244,241,254,0.18)] shadow-chog-lg aspect-square bg-[#161228]">
+              <div className="cl-float relative rounded-[2rem] overflow-hidden border border-[rgba(244,241,254,0.18)] shadow-chog-lg aspect-square bg-[#0c0c12]">
                 <img
                   src="chog-hero.webp"
                   alt="Chog Genesis holder identity"
@@ -170,7 +170,7 @@ export const Hero = () => {
                   (src, i) => (
                     <div
                       key={src}
-                      className="rounded-2xl overflow-hidden border border-[rgba(244,241,254,0.12)] shadow-chog-sm aspect-square bg-[#161228] hover:border-[#836ef9]/50 hover:scale-[1.04] hover:-translate-y-1 transition-all duration-200"
+                      className="rounded-2xl overflow-hidden border border-[rgba(244,241,254,0.12)] shadow-chog-sm aspect-square bg-[#0c0c12] hover:border-[#836ef9]/50 hover:scale-[1.04] hover:-translate-y-1 transition-all duration-200"
                     >
                       <img
                         src={src}

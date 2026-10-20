@@ -158,14 +158,27 @@ export function sendMessage(
     message.id = await messageMutex.runExclusive(async () =>
       db.messages.add(message)
     );
+    const pendingId = message.id;
 
     try {
       const xmtpConversation = await getXMTPConversation(client, conversation);
       const sentId = await xmtpConversation.sendText(content);
-      await db.messages.update(message.id, {
-        xmtpID: sentId,
-        isSending: false,
-        sentAt: new Date(),
+      await messageMutex.runExclusive(async () => {
+        // The live stream may have already persisted this message — if so,
+        // drop our optimistic row instead of duplicating it.
+        const streamed = await db.messages
+          .where("xmtpID")
+          .equals(sentId)
+          .first();
+        if (streamed && streamed.id !== message.id) {
+          await db.messages.delete(pendingId);
+        } else {
+          await db.messages.update(pendingId, {
+            xmtpID: sentId,
+            isSending: false,
+            sentAt: new Date(),
+          });
+        }
       });
       await updateConversationTimestamp(conversation.topic, new Date());
       await creditMessage(clientAddress(client));

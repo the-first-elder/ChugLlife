@@ -12,7 +12,7 @@ import {
   useState,
 } from "react";
 import { useAccount, useWalletClient } from "wagmi";
-import { heartbeat } from "../model/activity";
+import { heartbeat, applyDemoGrant } from "../model/activity";
 import { clientAddress as clientAddressFor } from "../model/conversations";
 import { hexToBytes } from "viem";
 import { Wallet } from "ethers";
@@ -323,6 +323,7 @@ export default function ClientProvider({
         clientCache.current.set(cacheId, newClient);
         setClient(newClient);
         setStatus("ready");
+        void applyDemoGrant(clientAddressFor(newClient).toLowerCase());
       } catch (e) {
         // XMTP caps 10 installations per inbox. When demo keys from prior
         // runs burn their slots (e.g. a wiped local DB), rotate to a fresh
@@ -434,7 +435,7 @@ export default function ClientProvider({
           style={{ top: "calc(4.5rem + env(safe-area-inset-top))" }}
           role="status"
         >
-          <div className="cl-fade-in flex items-center gap-3 rounded-2xl border border-[#836ef9]/40 bg-[#161228]/95 px-4 py-3 text-[#f4f1fe] shadow-chog backdrop-blur-xl">
+          <div className="cl-fade-in flex items-center gap-3 rounded-2xl border border-[#836ef9]/40 bg-[#0c0c12]/95 px-4 py-3 text-[#f4f1fe] shadow-chog backdrop-blur-xl">
             <span
               aria-hidden
               className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[#836ef9]/25 border-t-[#836ef9]"

@@ -1,6 +1,7 @@
 import { Fragment, ReactElement, useEffect, useRef, useState } from "react";
 import { Conversation, Message } from "../model/db";
 import { useMessages } from "../hooks/useMessages";
+import { getXMTPGroup, memberAddresses } from "../model/conversations";
 import MessageComposerView from "./MessageComposerView";
 import MessageCellView from "./MessageCellView";
 import { Link } from "react-router-dom";
@@ -13,6 +14,9 @@ import {
 import ConversationSettingsView from "./ConversationSettingsView";
 import ConversationListView from "./ConversationListView";
 import PeerAvatar from "./PeerAvatar";
+import ChogBackdrop from "../components/ChogBackdrop";
+import RoomMembersRail from "./RoomMembersRail";
+import { LucideUsers, LucideX } from "lucide-react";
 import { CHOG_NFT_ADDRESS } from "../util/monad";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../model/db";
@@ -24,6 +28,35 @@ const appearsInMessageList = (message: Message): boolean => {
   const type = (message.contentType as { typeId?: string }).typeId;
   return type !== "reaction" && type !== "unknown";
 };
+
+/** Live roster count for a room via the XMTP group. */
+function useRoomRoster(conversation: Conversation): { members: number } | undefined {
+  const client = useClient();
+  const countRef = useRef<number | undefined>(undefined);
+  const [count, setCount] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (!client) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const group = await getXMTPGroup(client, conversation);
+        const list = await memberAddresses(group);
+        if (!cancelled) {
+          countRef.current = list.length;
+          setCount(list.length);
+        }
+      } catch {
+        // roster not synced yet — leave count untouched
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [client, conversation]);
+
+  return count === undefined ? undefined : { members: count };
+}
 
 const dayKey = (date: Date): string => new Date(date).toDateString();
 
@@ -48,14 +81,18 @@ export default function ConversationView({
 }): ReactElement {
   const messages = useMessages(conversation);
   const [isShowingSettings, setIsShowingSettings] = useState(false);
+  const [showMembers, setShowMembers] = useState(true);
   const [atBottom, setAtBottom] = useState(true);
   const isRoom = conversation.peerAddress === "";
-  const room = useLiveQuery(
-    () => db.rooms.get(conversation.topic),
-    [conversation.topic]
-  );
   const client = useClient();
   const myAddress = client ? clientAddress(client) : "";
+
+  const room = useLiveQuery(() => db.rooms.get(conversation.topic), [conversation.topic]);
+
+  // Layered presence: XMTP roster first, local activity rows as fallback,
+  // plus optimistic "+1" until sync catches up.
+  const roster = useRoomRoster(conversation);
+  const memberCount = Math.max(roster?.members ?? 0, room ? 1 : 0);
 
   const lastMsg = messages?.[messages.length - 1];
   const presence = usePeerPresence(
@@ -89,9 +126,9 @@ export default function ConversationView({
   }
 
   return (
-    <section className="flex flex-row bg-[#0e0b1a] text-[#f4f1fe]">
+    <section className="mx-auto flex w-full max-w-6xl flex-row justify-center border-x border-[rgba(244,241,254,0.08)] bg-[#000000] text-[#f4f1fe]">
       {/* Desktop Sidebar */}
-      <div className="hidden md:block w-full max-w-xs p-4 space-y-3 bg-[#141026] border-r border-[rgba(244,241,254,0.08)]">
+      <div className="hidden md:block w-full max-w-xs p-4 space-y-3 bg-[#08080d] border-r border-[rgba(244,241,254,0.08)]">
         <div className="flex items-center justify-between gap-2 py-1">
           <span className="cl-section-title">Chogmates</span>
           <Link
@@ -105,8 +142,8 @@ export default function ConversationView({
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex flex-col w-full h-[calc(100dvh-3.5rem-env(safe-area-inset-top))] bg-[#0e0b1a]">
-        <header className="z-40 px-4 py-3 shrink-0 bg-[#141026]/90 backdrop-blur-xl border-b border-[rgba(244,241,254,0.08)]">
+      <div className="flex flex-col w-full h-[calc(100dvh-3.5rem-env(safe-area-inset-top))] bg-[#000000]">
+        <header className="z-40 px-4 py-3 shrink-0 bg-[#08080d]/90 backdrop-blur-xl border-b border-[rgba(244,241,254,0.08)]">
           <div className="flex justify-between items-center gap-2 font-bold">
             <Link
               to="/conversations"
@@ -168,13 +205,24 @@ export default function ConversationView({
                   )}
 
                   {isRoom && (
-                    <Link
-                      to={`/room/${conversation.topic}/settings`}
-                      className="inline-flex items-center gap-1 text-[10px] font-bold text-[#a99bfc] hover:text-[#f4f1fe] bg-[#836ef9]/10 px-2 py-0.5 rounded-lg border border-[#836ef9]/30 transition-colors"
-                      data-testid="room-dashboard"
-                    >
-                      Room Dashboard ⚙️
-                    </Link>
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setShowMembers((v) => !v)}
+                        data-testid="toggle-members"
+                        title={showMembers ? "Hide roster" : "Show roster"}
+                        className="inline-flex items-center gap-1 text-[10px] font-bold text-[#a99bfc] hover:text-[#f4f1fe] bg-[#836ef9]/10 px-2 py-0.5 rounded-lg border border-[#836ef9]/30 transition-colors"
+                      >
+                        👥 {memberCount || "…"}
+                      </button>
+                      <Link
+                        to={`/room/${conversation.topic}/settings`}
+                        className="inline-flex items-center gap-1 text-[10px] font-bold text-[#a99bfc] hover:text-[#f4f1fe] bg-[#836ef9]/10 px-2 py-0.5 rounded-lg border border-[#836ef9]/30 transition-colors"
+                        data-testid="room-dashboard"
+                      >
+                        Room Dashboard ⚙️
+                      </Link>
+                    </>
                   )}
 
                   {!isRoom && conversation.peerAddress && (
@@ -210,10 +258,11 @@ export default function ConversationView({
         </header>
 
         <div className="relative flex-1 min-h-0 bg-chog-dots">
+          <ChogBackdrop seed={`chat-${conversation.topic.slice(-8)}`} count={6} faint />
           <div
             ref={scrollRef}
             onScroll={onScroll}
-            className="cl-stagger flex h-full flex-col space-y-2.5 overflow-y-auto px-3 py-4 sm:px-4"
+            className="cl-stagger relative z-10 flex h-full flex-col space-y-2.5 overflow-y-auto px-3 py-4 sm:px-4"
             data-testid="message-list"
           >
             <div className="mx-auto flex w-full max-w-3xl flex-col space-y-2.5">
@@ -255,7 +304,7 @@ export default function ConversationView({
             <button
               type="button"
               onClick={scrollToBottom}
-              className="cl-pop absolute bottom-4 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-[#836ef9]/40 bg-[#1e183a]/95 text-[#836ef9] shadow-chog backdrop-blur transition hover:bg-[#241d47] active:scale-90"
+              className="cl-pop absolute bottom-4 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-[#836ef9]/40 bg-[#14141b]/95 text-[#836ef9] shadow-chog backdrop-blur transition hover:bg-[#241d47] active:scale-90"
               aria-label="Jump to latest messages"
               title="Jump to latest"
             >
@@ -268,6 +317,8 @@ export default function ConversationView({
           <MessageComposerView conversation={conversation} />
         </div>
       </div>
+
+      {showMembers && <RoomMembersRail conversation={conversation} isRoom={isRoom} />}
     </section>
   );
 }

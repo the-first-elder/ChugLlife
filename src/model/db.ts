@@ -88,6 +88,10 @@ export interface Activity {
   turboUntil?: number;
   /** room creation capacity (1 by default; raised via Shop packs) */
   roomSlots: number;
+  /** Shop item ids this identity owns (cosmetics, badges, packs…) */
+  ownedItems?: string[];
+  /** one-time starter grant claimed (demo identities start funded) */
+  claimedGrant?: boolean;
   purchasedAt: Date;
 }
 
@@ -247,6 +251,12 @@ class DB extends Dexie {
     // v5: add updatedAt index to rooms (RoomsListView sorts by it)
     this.version(5).stores({
       rooms: `topic, owner, archived, createdAt, updatedAt`,
+    });
+
+    // v6: activity gains ownedItems / claimedGrant (schemaless fields — no new
+    // indexes needed, but bump so old installs upgrade cleanly)
+    this.version(6).stores({
+      activity: `key, points, purchasedAt`,
     });
   }
 }

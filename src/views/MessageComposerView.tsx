@@ -8,8 +8,10 @@ import {
 } from "react";
 import { useClient } from "../hooks/useClient";
 import { Conversation } from "../model/db";
+import db from "../model/db";
+import { sfx } from "../util/sfx";
 import { sendMessage } from "../model/messages";
-import { checkMutedWords, isBanned } from "../model/rooms";
+import { checkMutedWords, isBanned, isChogPolice } from "../model/rooms";
 import { clientAddress } from "../model/conversations";
 import { LucideSend, LucideShieldAlert } from "lucide-react";
 
@@ -40,14 +42,20 @@ export default function MessageComposerView({
   async function roomGuard(text: string): Promise<boolean> {
     if (!isRoom || !client) return true;
     setModNotice(undefined);
-    if (await isBanned(conversation.topic, clientAddress(client))) {
+    const me = clientAddress(client);
+    if (await isBanned(conversation.topic, me)) {
       setModNotice("Chug police has you banned from this room.");
       return false;
     }
-    const hits = await checkMutedWords(conversation.topic, text);
-    if (hits.length > 0) {
-      setModNotice(`🛡️ Chog police: “${hits[0]}” is filtered in this room.`);
-      return false;
+    const room = await db.rooms.get(conversation.topic);
+    const isOwner = room?.owner === me;
+    const police = isOwner || (await isChogPolice(conversation.topic, me));
+    if (!police) {
+      const hits = await checkMutedWords(conversation.topic, text);
+      if (hits.length > 0) {
+        setModNotice(`🛡️ Chog police: “${hits[0]}” is filtered in this room.`);
+        return false;
+      }
     }
     return true;
   }
@@ -65,6 +73,7 @@ export default function MessageComposerView({
     // Keep the caret in the field for rapid-fire chatting.
     textareaRef.current?.focus();
     try {
+      sfx.send();
       sendMessage(client, conversation, text);
     } finally {
       inFlight.current = false;
@@ -82,7 +91,7 @@ export default function MessageComposerView({
 
   return (
     <div
-      className="sticky bottom-0 z-30 border-t border-[rgba(244,241,254,0.08)] bg-[#141026]/95 backdrop-blur-xl"
+      className="sticky bottom-0 z-30 border-t border-[rgba(244,241,254,0.08)] bg-[#08080d]/95 backdrop-blur-xl"
       style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
     >
       {modNotice && (
@@ -100,9 +109,9 @@ export default function MessageComposerView({
         onSubmit={(e) => void onSubmit(e)}
       >
         <div
-          className={`flex items-center gap-2 rounded-[24px] border bg-[#1b1533] p-1.5 pl-4 transition-all duration-200 ${
+          className={`flex items-center gap-2 rounded-[24px] border bg-[#0d0d13] p-1.5 pl-4 transition-all duration-200 ${
             focused
-              ? "border-[#836ef9]/60 bg-[#1e1838] shadow-[0_0_0_4px_rgba(131,110,249,0.12)]"
+              ? "border-[#836ef9]/60 bg-[#14141b] shadow-[0_0_0_4px_rgba(131,110,249,0.12)]"
               : "border-white/10"
           }`}
         >

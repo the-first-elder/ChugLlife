@@ -85,7 +85,7 @@ export default function BottomNav(): ReactElement {
   return (
     <nav
       aria-label="Bottom Navigation"
-      className="fixed bottom-0 left-0 right-0 z-40 bg-[#131024]/97 backdrop-blur-xl border-t border-[rgba(244,241,254,0.12)] shadow-[0_-8px_30px_rgba(0,0,0,0.55)]"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-[#05050a]/97 backdrop-blur-xl border-t border-[rgba(244,241,254,0.12)] shadow-[0_-8px_30px_rgba(0,0,0,0.55)]"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#836ef9]/40 to-transparent" />

@@ -38,7 +38,7 @@ export default function RankBadge(p: {
       }`}
       style={{
         background: isTier4
-          ? `linear-gradient(135deg, ${color}35, #161228 85%)`
+          ? `linear-gradient(135deg, ${color}35, #0c0c12 85%)`
           : isTier3
           ? `linear-gradient(135deg, ${color}28, ${color}10)`
           : `${color}18`,

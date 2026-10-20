@@ -14,7 +14,7 @@ const CHOGS = [
 
 export const Review = () => {
   return (
-    <div className="flex flex-col items-center justify-center gap-7 px-5 py-14 sm:py-20 text-[#f4f1fe] bg-[#141026] border-y border-[rgba(244,241,254,0.08)] relative overflow-hidden">
+    <div className="flex flex-col items-center justify-center gap-7 px-5 py-14 sm:py-20 text-[#f4f1fe] bg-[#08080d] border-y border-[rgba(244,241,254,0.08)] relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[36rem] h-64 bg-[#836ef9]/12 rounded-full blur-3xl pointer-events-none" />
 
       <Reveal className="flex flex-col items-center gap-7 w-full relative z-10">
@@ -31,7 +31,7 @@ export const Review = () => {
           {CHOGS.map((src, i) => (
             <div
               key={src}
-              className={`rounded-xl overflow-hidden border border-[rgba(244,241,254,0.14)] shadow-chog-sm aspect-square bg-[#161228] hover:border-[#836ef9]/50 hover:-translate-y-1 hover:scale-105 transition-all duration-200 ${
+              className={`rounded-xl overflow-hidden border border-[rgba(244,241,254,0.14)] shadow-chog-sm aspect-square bg-[#0c0c12] hover:border-[#836ef9]/50 hover:-translate-y-1 hover:scale-105 transition-all duration-200 ${
                 i % 2 === 0 ? "w-14 sm:w-16 translate-y-1" : "w-12 sm:w-14"
               }`}
             >

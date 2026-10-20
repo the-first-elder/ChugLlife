@@ -7,10 +7,12 @@ import { useClient, useClientStatus } from "../hooks/useClient";
 import { clientAddress } from "../model/conversations";
 import db from "../model/db";
 import { rankProgress } from "../model/rank";
+import { SHOP_ITEMS } from "../model/shop";
 import RankBadge from "../components/RankBadge";
 import RankLadderModal from "../components/RankLadderModal";
 import PeerAvatar from "./PeerAvatar";
 import { Link, useNavigate } from "react-router-dom";
+import ChogBackdrop from "../components/ChogBackdrop";
 import {
   LucideCoins,
   LucideCopy,
@@ -69,10 +71,11 @@ export default function HomeView(): ReactElement {
   const onlineHours = activity ? Math.round((activity.onlineMinutes / 60) * 10) / 10 : 0;
 
   return (
-    <div className="p-4 pt-6 max-w-5xl mx-auto pb-28 text-[#f4f1fe]">
+    <div className="relative z-10 p-4 pt-6 max-w-5xl mx-auto pb-28 text-[#f4f1fe]">
+      <ChogBackdrop seed="home" />
       {/* Profile & Rank Strip */}
       <div
-        className="mb-6 bg-[#161228] border border-[rgba(244,241,254,0.12)] rounded-3xl shadow-chog-lg p-4 sm:p-5 relative overflow-hidden"
+        className="mb-6 bg-[#0c0c12] border border-[rgba(244,241,254,0.12)] rounded-3xl shadow-chog-lg p-4 sm:p-5 relative overflow-hidden"
         data-testid="profile-strip"
       >
         <div className="flex items-center justify-between flex-wrap gap-4">
@@ -114,7 +117,7 @@ export default function HomeView(): ReactElement {
                 type="button"
                 data-testid="open-rank-ladder"
                 onClick={() => setShowRankModal(true)}
-                className="group flex items-center gap-3 rounded-2xl border border-[#836ef9]/30 bg-[#1e183a]/60 p-2.5 transition hover:border-[#836ef9]/50 hover:bg-[#1e183a] text-left"
+                className="group flex items-center gap-3 rounded-2xl border border-[#836ef9]/30 bg-[#14141b]/60 p-2.5 transition hover:border-[#836ef9]/50 hover:bg-[#14141b] text-left"
                 title="Click to view rank progression ladder"
               >
                 <RankBadge rank={rank} size="sm" showLevel />
@@ -195,6 +198,33 @@ export default function HomeView(): ReactElement {
             <LucideSparkles size={12} /> View Rank Ladder →
           </button>
         </div>
+
+        {/* Shop inventory — everything you own, front and center */}
+        {activity && activity.ownedItems && activity.ownedItems.length > 0 && (
+          <div
+            className="mt-3 flex items-center gap-2 flex-wrap"
+            data-testid="inventory-strip"
+          >
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#f4f1fe]/40">
+              Inventory
+            </span>
+            {activity.ownedItems.map((id) => {
+              const item = SHOP_ITEMS.find((i) => i.id === id);
+              if (!item) return null;
+              return (
+                <span
+                  key={id}
+                  title={item.name}
+                  data-testid={`inventory-${id}`}
+                  className="inline-flex items-center gap-1 rounded-full bg-[#f59e0b]/10 border border-[#f59e0b]/25 px-2 py-0.5 text-[11px] font-bold text-[#f59e0b]"
+                >
+                  <span>{item.emoji}</span>
+                  <span className="text-[#f4f1fe]/80">{item.name}</span>
+                </span>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <ConversationListView />

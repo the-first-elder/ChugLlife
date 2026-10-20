@@ -19,6 +19,18 @@ const conversationMutex = new Mutex();
 // trap the underlying wasm module ("memory access out of bounds").
 const dmMutex = new Mutex();
 
+/**
+ * Groups we know exist on XMTP, keyed by topic (group id). listGroups() can
+ * lag behind createGroup(); without this cache every fallback lookup used to
+ * spawn a duplicate group.
+ */
+const groupCache = new Map<string, XmtpGroup>();
+
+/** Remember a live group so lookups never re-create it. */
+export function registerGroup(group: XmtpGroup) {
+  groupCache.set(group.id, group);
+}
+
 export function clientAddress(client: XmtpClient): string {
   return (client.accountIdentifier?.identifier ?? "").toLowerCase();
 }
@@ -97,7 +109,13 @@ export async function findConversation(
 
   // If this is a room in db.rooms, auto-create the conversation record
   const room = await db.rooms.get(topic);
-  if (room) {
+  if (!room) return undefined;
+
+  // Guarded so concurrent callers don't insert duplicate rows
+  return await conversationMutex.runExclusive(async () => {
+    const raced = await db.conversations.where("topic").equals(topic).first();
+    if (raced) return raced;
+
     const fresh: Conversation = {
       topic: room.topic,
       title: `${room.emoji} ${room.name}`,
@@ -107,8 +125,7 @@ export async function findConversation(
     };
     fresh.id = await db.conversations.add(fresh);
     return fresh;
-  }
-  return undefined;
+  });
 }
 
 export async function updateConversationTimestamp(
@@ -132,6 +149,10 @@ export async function getXMTPConversation(
   client: XmtpClient,
   conversation: Conversation
 ): Promise<XmtpDm> {
+  // 1) Groups we created / saw this session — always authoritative
+  const cached = groupCache.get(conversation.topic);
+  if (cached) return cached as unknown as XmtpDm;
+
   const [dms, groups] = await Promise.all([
     client.conversations.listDms(),
     client.conversations.listGroups(),
@@ -139,19 +160,21 @@ export async function getXMTPConversation(
   const dm = dms.find((d) => d.id === conversation.topic);
   if (dm) return dm as XmtpDm;
   const group = groups.find((g) => g.id === conversation.topic);
-  if (group) return group as unknown as XmtpDm;
+  if (group) {
+    registerGroup(group as XmtpGroup);
+    return group as unknown as XmtpDm;
+  }
 
-  // For group rooms not yet synced from network, create or get optimistic group
+  // 2) One network sync + retry before giving up. Never optimistically
+  //    createGroup() here — that used to duplicate rooms on every send.
   if (conversation.peerAddress === "") {
-    try {
-      const newGroup = await client.conversations.createGroup([], {
-        groupName: conversation.title || "Chuglife Room",
-        permissions: 0,
-      });
-      return newGroup as unknown as XmtpDm;
-    } catch {
-      // return first available group if any
-      if (groups.length > 0) return groups[0] as unknown as XmtpDm;
+    await client.conversations.sync();
+    const refreshed = (await client.conversations.listGroups()).find(
+      (g) => g.id === conversation.topic
+    );
+    if (refreshed) {
+      registerGroup(refreshed as XmtpGroup);
+      return refreshed as unknown as XmtpDm;
     }
   }
 
@@ -170,8 +193,10 @@ export async function saveGroupConversation(
       .first();
     if (existing) {
       await db.conversations.update(existing, { peerAddress: "" });
+      registerGroup(group);
       return { ...existing, peerAddress: "" };
     }
+    registerGroup(group);
     const conversation: Conversation = {
       topic: group.id,
       title: group.name || "Chuglife room",
@@ -191,11 +216,14 @@ export async function getXMTPGroup(
   client: XmtpClient,
   conversation: Conversation
 ): Promise<XmtpGroup> {
+  const cached = groupCache.get(conversation.topic);
+  if (cached) return cached;
   const groups = await client.conversations.listGroups();
   const group = groups.find((g) => g.id === conversation.topic);
   if (!group) {
     throw new Error("room not found on XMTP");
   }
+  registerGroup(group as XmtpGroup);
   return group as XmtpGroup;
 }
 

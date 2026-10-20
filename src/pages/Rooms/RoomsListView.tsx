@@ -14,6 +14,7 @@ import {
   LucideChevronRight,
 } from "lucide-react";
 import Skeleton from "../../components/Skeleton";
+import ChogBackdrop from "../../components/ChogBackdrop";
 
 function timeAgo(d: Date) {
   const diff = Math.floor((Date.now() - new Date(d).getTime()) / 1000);
@@ -57,7 +58,8 @@ export default function RoomsListView(): ReactElement {
   const isAtCapacity = (mine ?? 0) >= slots;
 
   return (
-    <div className="text-[#f4f1fe] max-w-5xl mx-auto p-4 pt-8 pb-28 min-h-[75vh]">
+    <div className="relative z-10 text-[#f4f1fe] max-w-5xl mx-auto p-4 pt-8 pb-28 min-h-[75vh]">
+      <ChogBackdrop seed="rooms" />
       {/* Top Banner / Header */}
       <div className="cl-card cl-card-glow cl-fade-in p-6 sm:p-8">
         <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#836ef9]/15 rounded-full blur-3xl pointer-events-none" />
@@ -108,7 +110,7 @@ export default function RoomsListView(): ReactElement {
       </div>
 
       {/* Search Bar — sticky so it's always reachable */}
-      <div className="sticky top-14 z-30 -mx-4 px-4 py-2 bg-[#0e0b1a]/85 backdrop-blur-xl border-b border-white/5">
+      <div className="sticky top-14 z-30 -mx-4 px-4 py-2 bg-[#000000]/85 backdrop-blur-xl border-b border-white/5">
         <div className="relative z-10 flex items-center gap-2">
           <LucideSearch size={16} className="text-[#f4f1fe]/45 shrink-0" />
           <input
@@ -143,7 +145,7 @@ export default function RoomsListView(): ReactElement {
       <div className="cl-stagger mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="rooms-grid">
         {rooms === null &&
           Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="rounded-3xl p-4 bg-[#161228] border border-white/10">
+            <div key={i} className="rounded-3xl p-4 bg-[#0c0c12] border border-white/10">
               <div className="flex items-start gap-3">
                 <Skeleton className="h-11 w-11 shrink-0" rounded="rounded-2xl" />
                 <div className="flex-1 space-y-2">
@@ -187,7 +189,7 @@ export default function RoomsListView(): ReactElement {
               data-testid={`room-${room.topic}`}
               className="cl-card-flat group hover:border-[#836ef9]/50 hover:bg-[#1a1433] transition-all duration-200 p-4 flex items-start gap-3"
             >
-              <span className="relative w-11 h-11 shrink-0 text-2xl rounded-2xl bg-[#141026] border border-white/5 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+              <span className="relative w-11 h-11 shrink-0 text-2xl rounded-2xl bg-[#08080d] border border-white/5 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
                 {room.emoji}
                 {Date.now() - new Date(room.updatedAt).getTime() < 3_600_000 && (
                   <span
@@ -195,7 +197,7 @@ export default function RoomsListView(): ReactElement {
                     title="Active recently"
                   >
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5ce68a] opacity-60" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#5ce68a] border-2 border-[#0e0b1a]" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#5ce68a] border-2 border-[#000000]" />
                   </span>
                 )}
               </span>

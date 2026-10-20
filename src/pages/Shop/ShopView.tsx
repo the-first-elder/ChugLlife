@@ -8,10 +8,12 @@ import { getActivity } from "../../model/activity";
 import { rankProgress } from "../../model/rank";
 import RankBadge from "../../components/RankBadge";
 import RankLadderModal from "../../components/RankLadderModal";
-import { SHOP_ITEMS, ShopItem, ShopItemId, applyPurchase } from "../../model/shop";
+import { SHOP_ITEMS, ShopItem, ShopItemId, applyPurchase, buyWithPoints } from "../../model/shop";
 import { monad, monadPublicClient, shopTreasury } from "../../util/monad";
 import { useAccount, useBalance, useSendTransaction, useSwitchChain } from "wagmi";
 import { parseEther } from "viem";
+import { sfx } from "../../util/sfx";
+import ChogBackdrop from "../../components/ChogBackdrop";
 import {
   LucideRocket,
   LucideSparkles,
@@ -95,29 +97,38 @@ export default function ShopView(): ReactElement {
     ? Number(balance.formatted).toLocaleString(undefined, { maximumFractionDigits: 4 })
     : undefined;
 
-  async function buy(item: ShopItem) {
-    if (!walletAddress || !treasury || busy) return;
+  async function buy(item: ShopItem, mode: "mon" | "points") {
+    if (busy) return;
     setPendingItem(item.id);
     setCheckoutMsg(undefined);
     try {
-      const value = parseEther(item.price);
-      if (balance && balance.value < value) {
-        throw new Error(`Not enough MON — this item costs ${item.price} MON.`);
+      if (mode === "mon") {
+        const value = parseEther(item.price);
+        if (!walletAddress || !treasury) {
+          throw new Error("MON checkout needs a wallet + treasury config.");
+        }
+        if (balance && balance.value < value) {
+          throw new Error(`Not enough MON — this item costs ${item.price} MON.`);
+        }
+        if (chainId !== monad.id) {
+          await switchChainAsync({ chainId: monad.id });
+        }
+        const hash = await sendTransactionAsync({ to: treasury, value });
+        setCheckoutMsg(`Confirming on Monad…`);
+        await monadPublicClient.waitForTransactionReceipt({ hash });
+        const row = await getActivity(address || walletAddress);
+        await applyPurchase(row, item);
+        void refetchBalance();
+      } else {
+        // Point checkout — works for demo identities & broke chogs
+        await buyWithPoints(address, item);
       }
-      if (chainId !== monad.id) {
-        await switchChainAsync({ chainId: monad.id });
-      }
-      const hash = await sendTransactionAsync({ to: treasury, value });
-      setCheckoutMsg(`Confirming on Monad…`);
-      await monadPublicClient.waitForTransactionReceipt({ hash });
-
-      const row = await getActivity(address || walletAddress);
-      await applyPurchase(row, item);
+      sfx.success();
       setJustBought(item.name);
       setCheckoutMsg(undefined);
-      void refetchBalance();
       setTimeout(() => setJustBought(null), 5000);
     } catch (e) {
+      sfx.error();
       setCheckoutMsg(checkoutError(e));
     } finally {
       setPendingItem(null);
@@ -127,7 +138,8 @@ export default function ShopView(): ReactElement {
   const items = SHOP_ITEMS.filter((i) => filter === "all" || i.kind === filter);
 
   return (
-    <div className="text-[#f4f1fe] max-w-5xl mx-auto p-4 pt-8 pb-28 min-h-[75vh]">
+    <div className="relative z-10 text-[#f4f1fe] max-w-5xl mx-auto p-4 pt-8 pb-28 min-h-[75vh]">
+      <ChogBackdrop seed="shop" />
       {/* Top Banner */}
       <div className="cl-card cl-card-glow cl-fade-in p-6 sm:p-8">
         <div className="absolute -top-16 -right-16 w-56 h-56 bg-[#f59e0b]/15 rounded-full blur-3xl pointer-events-none" />
@@ -161,8 +173,19 @@ export default function ShopView(): ReactElement {
             <div className="mt-2 font-mono text-[11px] text-[#f4f1fe]/55">
               {hasWallet
                 ? "spendable in this shop"
-                : "connect a wallet to unlock checkout"}
+                : "points checkout — earn by chatting"}
             </div>
+            {activity && (
+              <div className="mt-3 flex items-center justify-between rounded-2xl bg-[#836ef9]/10 border border-[#836ef9]/25 px-3 py-2">
+                <span className="font-mono text-[10px] text-[#a99bfc]">Chug Points</span>
+                <span
+                  data-testid="chug-points"
+                  className="font-mono text-sm font-extrabold tabular-nums text-[#f4f1fe]"
+                >
+                  {activity.points.toLocaleString()}
+                </span>
+              </div>
+            )}
             {isTurboActive && (
               <div className="cl-chip mt-3 border-[#f59e0b]/40 bg-[#f59e0b]/15 text-[#f59e0b]">
                 🚀 Turbo active
@@ -260,20 +283,15 @@ export default function ShopView(): ReactElement {
       </div>
       <div className="cl-stagger mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((item) => {
-          const value = parseEther(item.price);
-          const canAfford = !balance || balance.value >= value;
-          const isOwned =
-            (item.id === "rooms-5" && (activity?.roomSlots ?? 1) >= 5) ||
-            (item.id === "rooms-8" && (activity?.roomSlots ?? 1) >= 8);
-          const paying = pendingItem === item.id;
+          const chainValue = parseEther(item.price);
+          const canPayChain = !balance || balance.value >= chainValue;
+          const canAffordPts = (activity?.points ?? 0) >= item.pointsPrice;
+          const isOwned = ((activity?.ownedItems ?? []) as string[]).includes(item.id);
+          const payingMon = pendingItem === item.id && !!treasury && hasWallet;
+          const payingPts = pendingItem === item.id && (!treasury || !hasWallet);
 
-          let label = `Buy for ${item.price} MON`;
-          if (!treasury) label = "Checkout offline";
-          else if (!hasWallet) label = "Connect wallet to buy";
-          else if (paying || (busy && !paying)) label = paying ? "Sending MON…" : "Confirming…";
-          else if (!canAfford) label = `Need ${item.price} MON`;
-
-          const disabled = !treasury || !hasWallet || busy || !canAfford;
+          const disabledMon = !address || busy || isOwned || !treasury || !hasWallet || !canPayChain;
+          const disabledPts = !address || busy || isOwned || !canAffordPts;
 
           return (
             <div
@@ -283,12 +301,17 @@ export default function ShopView(): ReactElement {
             >
               <div>
                 <div className="flex items-start justify-between gap-2">
-                  <span className="w-12 h-12 text-2xl rounded-2xl bg-[#141026] border border-white/5 flex items-center justify-center" aria-hidden>
+                  <span className="w-12 h-12 text-2xl rounded-2xl bg-[#08080d] border border-white/5 flex items-center justify-center" aria-hidden>
                     {item.emoji}
                   </span>
-                  <span className="cl-chip bg-[#f59e0b]/10 border-[#f59e0b]/30 text-[#f59e0b] font-bold tabular-nums">
-                    {item.price} MON
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="cl-chip bg-[#f59e0b]/10 border-[#f59e0b]/30 text-[#f59e0b] font-bold tabular-nums">
+                      {item.price} MON
+                    </span>
+                    <span className="cl-chip bg-[#836ef9]/10 border-[#836ef9]/30 text-[#a99bfc] font-bold tabular-nums">
+                      {item.pointsPrice.toLocaleString()} pts
+                    </span>
+                  </div>
                 </div>
                 <h3 className="font-bold text-[15px] text-[#f4f1fe] mt-4">{item.name}</h3>
                 <p className="text-xs text-[#f4f1fe]/55 mt-2 leading-relaxed">{item.blurb}</p>
@@ -297,35 +320,52 @@ export default function ShopView(): ReactElement {
               <div className="mt-4 pt-3 border-t border-white/10">
                 {isOwned ? (
                   <div className="text-center text-xs font-bold text-[#5ce68a] py-2 bg-[#5ce68a]/10 rounded-2xl border border-[#5ce68a]/20">
-                    ✓ Already Unlocked
+                    ✓ In your inventory
                   </div>
                 ) : (
                   <div className="space-y-2">
+                    {/* Pay from wallet in MON */}
                     <button
                       type="button"
-                      data-testid={`buy-${item.id}`}
-                      disabled={disabled}
-                      onClick={() => void buy(item)}
+                      data-testid={`buy-${item.id}-mon`}
+                      disabled={disabledMon}
+                      onClick={() => void buy(item, "mon")}
                       className={`cl-btn cl-btn-sm w-full ${
-                        disabled
+                        disabledMon
                           ? "bg-white/5 text-[#f4f1fe]/40 border border-white/10 cursor-not-allowed"
                           : "cl-btn-primary"
                       }`}
                     >
-                      {paying ? (
-                        <span
-                          aria-hidden
-                          className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-                        />
-                      ) : (
-                        <LucideSparkles size={14} />
-                      )}
-                      {label}
+                      <LucideCoins size={14} />
+                      {payingMon
+                        ? "Confirming…"
+                        : !treasury
+                          ? "MON checkout offline"
+                          : !hasWallet
+                            ? "Connect wallet for MON"
+                            : `Pay ${item.price} MON`}
                     </button>
-                    {!canAfford && hasWallet && (
+                    {/* Or spend earned Chug Points */}
+                    <button
+                      type="button"
+                      data-testid={`buy-${item.id}`}
+                      disabled={disabledPts}
+                      onClick={() => void buy(item, "points")}
+                      className={`cl-btn cl-btn-sm w-full ${
+                        disabledPts
+                          ? "bg-white/5 text-[#f4f1fe]/40 border border-white/10 cursor-not-allowed"
+                          : "cl-btn-ghost !text-[#a99bfc] !border-[#836ef9]/40"
+                      }`}
+                    >
+                      <LucideSparkles size={14} />
+                      {payingPts
+                        ? "Unlocking…"
+                        : `Use ${item.pointsPrice.toLocaleString()} pts`}
+                    </button>
+                    {!canAffordPts && address && !payingPts && (
                       <p className="flex items-center justify-center gap-1 text-[10px] text-[#f4f1fe]/45">
                         <LucideTrendingUp size={11} className="text-[#836ef9]" />
-                        Top up your wallet to grab this one
+                        Chat to earn points — every message pays 25
                       </p>
                     )}
                   </div>

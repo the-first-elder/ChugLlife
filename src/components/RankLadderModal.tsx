@@ -60,7 +60,7 @@ export default function RankLadderModal({
         </div>
 
         {/* Current standing */}
-        <div className="border-b border-white/10 bg-gradient-to-b from-[#181330] to-[#141026] px-4 py-5 sm:px-5">
+        <div className="border-b border-white/10 bg-gradient-to-b from-[#101018] to-[#08080d] px-4 py-5 sm:px-5">
           <div className="flex items-center gap-4">
             {/* Progress ring */}
             <div className="relative h-24 w-24 shrink-0">
@@ -151,7 +151,7 @@ export default function RankLadderModal({
 
         {/* Tier timeline */}
         <div className="flex-1 overflow-y-auto px-4 pb-5 pt-3">
-          <div className="cl-section-title sticky top-0 z-10 bg-[#161228]/90 pb-2 pt-1 backdrop-blur-sm">
+          <div className="cl-section-title sticky top-0 z-10 bg-[#0c0c12]/90 pb-2 pt-1 backdrop-blur-sm">
             Rank hierarchy
           </div>
           <ol className="relative ml-1 space-y-1">
@@ -173,10 +173,10 @@ export default function RankLadderModal({
                   <span
                     className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold ${
                       isCurrent
-                        ? "border-transparent text-[#0e0b1a]"
+                        ? "border-transparent text-[#000000]"
                         : isUnlocked
                         ? "border-[#5ce68a]/40 bg-[#5ce68a]/10 text-[#5ce68a]"
-                        : "border-white/10 bg-[#161228] text-[#f4f1fe]/35"
+                        : "border-white/10 bg-[#0c0c12] text-[#f4f1fe]/35"
                     }`}
                     style={
                       isCurrent
@@ -211,7 +211,7 @@ export default function RankLadderModal({
 
                   {isCurrent ? (
                     <span
-                      className="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold text-[#0e0b1a]"
+                      className="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold text-[#000000]"
                       style={{ background: r.color }}
                     >
                       Current
@@ -232,7 +232,7 @@ export default function RankLadderModal({
         </div>
 
         {/* Footer */}
-        <div className="space-y-2.5 border-t border-white/10 bg-[#161228] p-4">
+        <div className="space-y-2.5 border-t border-white/10 bg-[#0c0c12] p-4">
           <div className="flex flex-wrap items-center justify-center gap-2">
             <span className="cl-chip">
               <LucideMessageSquare size={13} className="text-[#836ef9]" />

@@ -1,7 +1,7 @@
 import db from "./db";
 import { Room, RoomBan, RoomRole } from "./db";
 import { getActivity } from "./activity";
-import { saveGroupConversation } from "./conversations";
+import { saveGroupConversation, registerGroup } from "./conversations";
 import type { Client } from "@xmtp/browser-sdk";
 
 export type { Room };
@@ -92,6 +92,7 @@ export async function createRoom(
     permissions: 0,
   });
   await group.sync();
+  registerGroup(group);
 
   const now = new Date();
   const room: Room = {

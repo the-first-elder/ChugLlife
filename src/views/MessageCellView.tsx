@@ -3,11 +3,25 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { Message } from "../model/db";
 import db from "../model/db";
 import { rankFor } from "../model/rank";
+import { ownsItem } from "../model/activity";
 import RankBadge from "../components/RankBadge";
 import ReactionsView from "./ReactionsView";
 import { useReplies } from "../hooks/useReplies";
 import { shortAddress } from "../util/shortAddress";
 import { LucideCheck, LucideClock } from "lucide-react";
+
+/** Shop cosmetics for a sender (badges & glow). */
+function useCosmetics(address: string) {
+  const activity = useLiveQuery(
+    () => (address ? db.activity.get(address.toLowerCase()) : undefined),
+    [address]
+  );
+  return {
+    Crown: ownsItem(activity, "founder-badge"),
+    Neon: ownsItem(activity, "neon-name"),
+    Aura: ownsItem(activity, "theme-cyber"),
+  };
+}
 
 export function Content({ message }: { message: Message }): ReactElement {
   const type = (message.contentType as { typeId?: string }).typeId;
@@ -67,6 +81,7 @@ export function SenderRank({ address, topic }: { address: string; topic?: string
   );
 
   const isOwner = room && room.owner.toLowerCase() === address.toLowerCase();
+  const policeLicensed = ownsItem(activity, "police-license");
 
   return (
     <span className="inline-flex items-center gap-1.5 flex-wrap">
@@ -78,12 +93,12 @@ export function SenderRank({ address, topic }: { address: string; topic?: string
           👑 Admin
         </span>
       )}
-      {!isOwner && isPolice && (
+      {!isOwner && (isPolice || policeLicensed) && (
         <span
           className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#14B8A6]/20 text-[#14B8A6] border border-[#14B8A6]/40 shadow-sm"
-          title="Chog Police Moderator"
+          title={isPolice ? "Chog Police Moderator" : "Chog Police License"}
         >
-          👮 Police
+          👮 Police{policeLicensed && !isPolice ? " ✓" : ""}
         </span>
       )}
       {activity && (
@@ -127,6 +142,23 @@ export default function MessageCellView({
   });
 
   const mine = message.sentByMe;
+  const { Crown, Neon, Aura } = useCosmetics(message.senderAddress);
+
+  const bubbleClass = mine
+    ? [
+        "cl-bubble-in relative flex flex-col rounded-2xl rounded-br-md px-3.5 py-2.5 transition-transform duration-150 hover:-translate-y-px",
+        "border border-white/10 bg-gradient-to-br from-[#836ef9] to-[#7058f5] text-white",
+        "shadow-[0_6px_20px_-8px_rgba(131,110,249,0.7)]",
+        Aura
+          ? "!from-[#a78bfa] !to-[#ec4899] !shadow-[0_0_24px_-4px_rgba(236,72,153,0.55)]"
+          : "",
+      ].join(" ")
+    : [
+        "cl-bubble-in relative flex flex-col rounded-2xl rounded-bl-md px-3.5 py-2.5 transition-transform duration-150 hover:-translate-y-px",
+        "border border-[rgba(244,241,254,0.12)] bg-[#0c0c12] text-[#f4f1fe]",
+        "shadow-[0_4px_16px_-10px_rgba(0,0,0,0.9)]",
+        Aura ? "!border-[#836ef9]/50 !shadow-[0_0_18px_-6px_rgba(131,110,249,0.5)]" : "",
+      ].join(" ");
 
   return (
     <div
@@ -134,17 +166,20 @@ export default function MessageCellView({
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      <div
-        className={
-          mine
-            ? "cl-bubble-in relative flex flex-col rounded-2xl rounded-br-md border border-white/10 bg-gradient-to-br from-[#836ef9] to-[#7058f5] px-3.5 py-2.5 text-white shadow-[0_6px_20px_-8px_rgba(131,110,249,0.7)] transition-transform duration-150 hover:-translate-y-px"
-            : "cl-bubble-in relative flex flex-col rounded-2xl rounded-bl-md border border-[rgba(244,241,254,0.12)] bg-[#161228] px-3.5 py-2.5 text-[#f4f1fe] shadow-[0_4px_16px_-10px_rgba(0,0,0,0.9)] transition-transform duration-150 hover:-translate-y-px"
-        }
-      >
+      <div className={bubbleClass}>
         <div className="space-y-1.5 text-xs w-full">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <span className="text-[10px] font-bold flex items-center gap-1.5">
-              <span className={mine ? "text-white/90" : "text-[#f4f1fe]/80 font-mono"}>
+              <span
+                className={
+                  Neon
+                    ? "font-extrabold text-[#c4b5fd] [text-shadow:0_0_8px_rgba(167,139,250,0.9),0_0_16px_rgba(131,110,249,0.6)]"
+                    : mine
+                      ? "text-white/90"
+                      : "text-[#f4f1fe]/80 font-mono"
+                }
+              >
+                {Crown && <span title="Founder">👑</span>}{" "}
                 {mine ? "You" : shortAddress(message.senderAddress)}
               </span>
               {message.senderAddress && (
@@ -175,7 +210,7 @@ export default function MessageCellView({
                   className={`flex flex-col text-xs rounded-xl rounded-tl-sm p-2 border-l-2 ${
                     mine
                       ? "bg-black/20 text-white/90 border-white/25"
-                      : "bg-[#1e183a] text-[#f4f1fe]/80 border-[#836ef9]/40"
+                      : "bg-[#14141b] text-[#f4f1fe]/80 border-[#836ef9]/40"
                   }`}
                   key={r.xmtpID}
                 >

@@ -175,7 +175,7 @@ export default function RoomSettingsView(): ReactElement {
         <div className="flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-white/10">
           <div>
             <div className="flex items-center gap-3">
-              <span className="text-3xl w-12 h-12 rounded-2xl bg-[#141026] border border-white/5 flex items-center justify-center shrink-0" aria-hidden>
+              <span className="text-3xl w-12 h-12 rounded-2xl bg-[#08080d] border border-white/5 flex items-center justify-center shrink-0" aria-hidden>
                 {room.emoji}
               </span>
               <div>

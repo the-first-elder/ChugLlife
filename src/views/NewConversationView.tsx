@@ -98,7 +98,7 @@ export default function NewConversationView(): ReactElement {
 
   return (
     <div className="p-4 pt-8 min-h-[60vh] max-w-lg mx-auto pb-28">
-      <div className="bg-[#161228] border border-white/10 rounded-2xl shadow-chog p-8 text-[#f4f1fe]">
+      <div className="bg-[#0c0c12] border border-white/10 rounded-2xl shadow-chog p-8 text-[#f4f1fe]">
         <div className="flex items-center gap-3 mb-2">
           <span className="bg-[#836ef9]/20 text-[#836ef9] p-2 rounded-xl">
             <LucideWallet size={22} />
@@ -117,7 +117,7 @@ export default function NewConversationView(): ReactElement {
             data-testid="address-input"
             type="text"
             defaultValue={autoAddress}
-            className="border border-white/15 bg-[#141026] text-[#f4f1fe] p-3 w-full rounded-xl font-mono text-sm outline-none focus:border-[#836ef9] transition"
+            className="border border-white/15 bg-[#08080d] text-[#f4f1fe] p-3 w-full rounded-xl font-mono text-sm outline-none focus:border-[#836ef9] transition"
             placeholder="0x… some chog's wallet address"
           />
 
