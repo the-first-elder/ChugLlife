@@ -97,9 +97,10 @@ export async function saveMessageFromNetwork(
           reference: reaction.reference,
           name: reaction.content,
         };
-        // Reactions apply immediately
+        // Reactions apply immediately. Attribute to the resolved member
+        // address — group rooms have no single peerAddress.
         await applyReactionLike(action, {
-          reactor: sentByMe ? clientAddress(client) : conversation.peerAddress,
+          reactor: senderAddress || (sentByMe ? clientAddress(client) : ""),
           name: reaction.content,
           messageXMTPID: reaction.reference,
         });

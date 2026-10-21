@@ -1,4 +1,4 @@
-import { Client as XmtpClient } from "@xmtp/browser-sdk";
+import { Client as XmtpClient, ReactionSchema } from "@xmtp/browser-sdk";
 import { Message } from "./db";
 import { findConversation, getXMTPConversation } from "./conversations";
 import { Mutex } from "async-mutex";
@@ -7,32 +7,45 @@ import { applyReactionLike } from "./message-helpers";
 
 const reactionMutex = new Mutex();
 
+function applyLocal(
+  action: "added" | "removed",
+  reactionName: string,
+  message: Message,
+  address: string
+): Promise<void> {
+  return reactionMutex.runExclusive(() =>
+    applyReactionLike(action, {
+      reactor: address,
+      name: reactionName,
+      messageXMTPID: message.xmtpID,
+    })
+  );
+}
+
 export async function addReaction(
   reactionName: string,
   message: Message,
   client: XmtpClient | null
 ) {
   if (!client) return;
+  const address = clientAddress(client);
+
+  // Optimistic first — the pill sticks immediately even if the network send
+  // is slow (or fails); the processor dedupes on the composite key.
+  await applyLocal("added", reactionName, message, address);
 
   const conversation = await findConversation(message.conversationTopic);
   if (!conversation) return;
 
   const xmtpConversation = await getXMTPConversation(client, conversation);
+  // Emoji content ⇒ Unicode schema (2 = Shortcode, which broke cross-client decode)
   await xmtpConversation.sendReaction({
     action: 1,
     reference: message.xmtpID,
     referenceInboxId: "",
     content: reactionName,
-    schema: 2,
+    schema: ReactionSchema.Unicode,
   } as never);
-
-  await reactionMutex.runExclusive(async () => {
-    await applyReactionLike("added", {
-      reactor: clientAddress(client),
-      name: reactionName,
-      messageXMTPID: message.xmtpID,
-    });
-  });
 }
 
 export async function removeReaction(
@@ -41,6 +54,9 @@ export async function removeReaction(
   client: XmtpClient | null
 ) {
   if (!client) return;
+  const address = clientAddress(client);
+
+  await applyLocal("removed", reactionName, message, address);
 
   const conversation = await findConversation(message.conversationTopic);
   if (!conversation) return;
@@ -51,14 +67,6 @@ export async function removeReaction(
     reference: message.xmtpID,
     referenceInboxId: "",
     content: reactionName,
-    schema: 2,
+    schema: ReactionSchema.Unicode,
   } as never);
-
-  await reactionMutex.runExclusive(async () => {
-    await applyReactionLike("removed", {
-      reactor: clientAddress(client),
-      name: reactionName,
-      messageXMTPID: message.xmtpID,
-    });
-  });
 }

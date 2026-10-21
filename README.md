@@ -44,7 +44,7 @@ Hold a Chog, sign in with your wallet, and your NFT instantly becomes:
 | [The Shop economy](#-the-chuglife-shop-economy) | [Roadmap](#-roadmap) |
 
 ---
-
+<!-- 
 ## 🏅 Built for the Chogathon judging criteria
 
 | Criterion | Weight | How Chuglife scores |
@@ -56,7 +56,7 @@ Hold a Chog, sign in with your wallet, and your NFT instantly becomes:
 | **Execution** | 15% | Typechecked, lint-clean production build, Playwright E2E, live on Cloudflare Pages. |
 | **$CHOG bonus** | ✨ | The MON point economy and shop run entirely in Monad-native currency and off-chain Chug Points earned through Chog-centric activity. |
 
----
+--- -->
 
 ## 🐸 Why the Chog NFT is essential (not decorative)
 
@@ -281,14 +281,14 @@ npm run build       # → dist/
 
 ---
 
-## ✅ Tests
+<!-- ## ✅ Tests
 
 ```bash
 npm run typecheck   # strict TS, zero errors
 npm run lint        # zero warnings allowed
 npm run build       # production build
 npx playwright test # E2E: landing, demo identity, chat flows
-```
+``` -->
 
 ---
 
