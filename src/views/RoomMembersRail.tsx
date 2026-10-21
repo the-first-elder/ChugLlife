@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Conversation } from "../model/db";
 import { getXMTPGroup, memberAddresses, clientAddress } from "../model/conversations";
@@ -21,7 +21,7 @@ const PLACEHOLDER_OWNER = /^0x0{39}[0-9a-f]$/;
  * and rank/role badges. Also usable for DMs (shows just the peer).
  */
 export default function RoomMembersRail({
-  conversation,
+  conversation: { topic, peerAddress },
   isRoom,
 }: {
   conversation: Conversation;
@@ -32,8 +32,19 @@ export default function RoomMembersRail({
   const [addresses, setAddresses] = useState<(string | undefined)[]>([]);
   const [error, setError] = useState<string | undefined>();
   const room = useLiveQuery(
-    () => db.rooms.get(conversation.topic),
-    [conversation.topic]
+    () => db.rooms.get(topic),
+    [topic]
+  );
+  /** getXMTPGroup only reads .topic — build a lightweight stand-in. */
+  const convoForLookup = useMemo<Conversation>(
+    () => ({
+      topic,
+      title: undefined,
+      createdAt: new Date(0),
+      updatedAt: new Date(0),
+      peerAddress,
+    }),
+    [topic, peerAddress]
   );
 
   useEffect(() => {
@@ -42,7 +53,7 @@ export default function RoomMembersRail({
     (async () => {
       let list: string[] = [];
       try {
-        const group = await getXMTPGroup(client, conversation);
+        const group = await getXMTPGroup(client, convoForLookup);
         list = (await memberAddresses(group))
           .map((m) => m.address)
           .filter((a): a is string => !!a);
@@ -67,14 +78,14 @@ export default function RoomMembersRail({
     return () => {
       cancelled = true;
     };
-  }, [client, conversation, isRoom, me, room?.owner]);
+  }, [client, convoForLookup, isRoom, me, room?.owner]);
 
   const rows: { address: string; isMe: boolean }[] = isRoom
     ? addresses
         .filter((a): a is string => !!a)
         .map((a) => ({ address: a, isMe: a === me }))
-    : conversation.peerAddress
-      ? [{ address: conversation.peerAddress, isMe: false }]
+    : peerAddress
+      ? [{ address: peerAddress, isMe: false }]
       : [];
 
   return (
@@ -113,7 +124,7 @@ export default function RoomMembersRail({
             key={address}
             address={address}
             isMe={isMe}
-            topic={conversation.topic}
+            topic={topic}
             isOwner={!!room && room.owner.toLowerCase() === address.toLowerCase()}
           />
         ))}
