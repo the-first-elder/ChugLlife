@@ -146,18 +146,25 @@ export default function MessageCellView({
 
   const bubbleClass = mine
     ? [
-        "cl-bubble-in relative flex flex-col rounded-2xl rounded-br-md px-3.5 py-2.5 transition-transform duration-150 hover:-translate-y-px",
-        "border border-white/10 bg-gradient-to-br from-[#836ef9] to-[#7058f5] text-white",
-        "shadow-[0_6px_20px_-8px_rgba(131,110,249,0.7)]",
+        // Glass gradient — translucent violet->pink over the chog collage,
+        // with a springy pop + one-shot glow bloom on send
+        "cl-send-pop relative flex flex-col rounded-2xl rounded-br-[6px] px-3.5 py-2.5",
+        "border border-[#836ef9]/35 bg-gradient-to-br from-[#836ef9]/30 to-[#ec4899]/20 backdrop-blur-md",
+        "text-white shadow-[0_8px_26px_-12px_rgba(131,110,249,0.65)]",
+        "transition-transform duration-150 hover:-translate-y-px active:scale-[0.99]",
         Aura
-          ? "!from-[#a78bfa] !to-[#ec4899] !shadow-[0_0_24px_-4px_rgba(236,72,153,0.55)]"
+          ? "!border-[#ec4899]/45 !shadow-[0_0_28px_-6px_rgba(236,72,153,0.55)]"
           : "",
       ].join(" ")
     : [
-        "cl-bubble-in relative flex flex-col rounded-2xl rounded-bl-md px-3.5 py-2.5 transition-transform duration-150 hover:-translate-y-px",
-        "border border-[rgba(244,241,254,0.12)] bg-[#0c0c12] text-[#f4f1fe]",
-        "shadow-[0_4px_16px_-10px_rgba(0,0,0,0.9)]",
-        Aura ? "!border-[#836ef9]/50 !shadow-[0_0_18px_-6px_rgba(131,110,249,0.5)]" : "",
+        "cl-bubble-in relative flex flex-col rounded-2xl rounded-bl-[6px] px-3.5 py-2.5",
+        // Frosted glass for peers — a chip of surface over the NFT collage
+        "border border-[rgba(244,241,254,0.10)] bg-white/[0.045] backdrop-blur-md",
+        "text-[#f4f1fe] shadow-[0_6px_20px_-14px_rgba(0,0,0,0.9)]",
+        "transition-transform duration-150 hover:-translate-y-px active:scale-[0.99]",
+        Aura
+          ? "!border-[#836ef9]/50 !shadow-[0_0_18px_-6px_rgba(131,110,249,0.5)]"
+          : "",
       ].join(" ");
 
   return (

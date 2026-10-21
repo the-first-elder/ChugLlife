@@ -26,6 +26,8 @@ export default function ChogImage({
       alt={alt}
       className={className}
       loading="lazy"
+      decoding="async"
+      draggable={false}
       onError={() => {
         if (idx < candidates.length - 1) {
           setIdx(idx + 1);

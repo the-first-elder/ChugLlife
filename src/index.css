@@ -25,8 +25,11 @@
 /* Chuglife base theme */
 html {
   scroll-behavior: smooth;
+  /* Reserve scrollbar space so pages don't shift when content loads in */
+  scrollbar-gutter: stable;
 }
 /* Smooth scrolling everywhere — page, chat rails, lists, back-to-top jumps.
+   Explicit scroll calls (chat auto-follow) pass behavior:"auto" to opt out.
    Users who opt out via reduced-motion keep instant jumps. */
 @media (prefers-reduced-motion: no-preference) {
   body,
@@ -46,6 +49,8 @@ body {
   overflow-x: hidden;
   overscroll-behavior-y: contain;
   -webkit-font-smoothing: antialiased;
+  /* iOS momentum scrolling for every nested scroll layer */
+  -webkit-overflow-scrolling: touch;
 }
 
 ::selection {
@@ -511,6 +516,38 @@ a[data-navigation] {
   animation: cl-bubble-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Send pop — springy overshoot + one-shot glow bloom on your own bubbles */
+@keyframes cl-send-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.86);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes cl-send-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(131, 110, 249, 0.55), 0 8px 24px -12px rgba(236, 72, 153, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(131, 110, 249, 0), 0 8px 24px -12px rgba(236, 72, 153, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(131, 110, 249, 0), 0 8px 24px -12px rgba(236, 72, 153, 0.4);
+  }
+}
+.cl-send-pop {
+  animation:
+    cl-send-pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    cl-send-glow 0.9s ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cl-fade-in,
   .cl-stagger > *,
@@ -522,6 +559,7 @@ a[data-navigation] {
   .cl-nudge,
   .cl-pulse-dot,
   .cl-bubble-in,
+  .cl-send-pop,
   .chog-marquee > span {
     animation: none !important;
   }

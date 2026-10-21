@@ -106,7 +106,9 @@ export default function ConversationView({
     const el = scrollRef.current;
     if (!el) return;
     if (atBottom) {
-      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      // Snap instantly to the newest bubble — smooth-scrolling a tall thread
+      // on every message feels like a slow crawl.
+      el.scrollTo({ top: el.scrollHeight, behavior: "auto" });
     }
   }, [messages?.length, atBottom]);
 
@@ -261,7 +263,7 @@ export default function ConversationView({
           <div
             ref={scrollRef}
             onScroll={onScroll}
-            className="cl-stagger relative z-10 flex h-full flex-col space-y-2.5 overflow-y-auto px-3 py-4 sm:px-4"
+            className="cl-stagger relative z-10 flex h-full flex-col space-y-2.5 overflow-y-auto overscroll-contain px-3 py-4 sm:px-4"
             data-testid="message-list"
           >
             <div className="mx-auto flex w-full max-w-3xl flex-col space-y-2.5">

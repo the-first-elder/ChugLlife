@@ -76,7 +76,7 @@ export default function ChogBackdrop({
       {spots.map((s, i) => (
         <div
           key={i}
-          className="absolute overflow-hidden rounded-[28%] shadow-2xl"
+          className="absolute overflow-hidden rounded-[28%] shadow-2xl will-change-transform"
           style={{
             top: s.top,
             left: s.left,

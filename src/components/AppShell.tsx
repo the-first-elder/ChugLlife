@@ -16,13 +16,14 @@ export default function AppShell(): ReactElement {
   return (
     <>
       <Header />
-      <AnimatePresence mode="wait" initial={false}>
+      {/* Cross-fade (no mode="wait") — the new page animates in while the old
+          one leaves, so navigation never blocks on an exit animation. */}
+      <AnimatePresence initial={false}>
         <motion.div
           key={location.pathname}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0, transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] } }}
+          exit={{ opacity: 0, y: -4, transition: { duration: 0.1, ease: "easeOut" } }}
         >
           <Outlet />
         </motion.div>
